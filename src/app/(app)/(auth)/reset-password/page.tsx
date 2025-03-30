@@ -2,28 +2,39 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { registerUser } from "@/lib/actions"
+import { resetPassword } from "@/lib/actions"
 
-export default function RegisterPage() {
+export default function ResetPasswordPage() {
   const router = useRouter()
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
+  const searchParams = useSearchParams()
+  const [token, setToken] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    const tokenParam = searchParams.get("token")
+    if (tokenParam) {
+      setToken(tokenParam)
+    } else {
+      setError("Invalid or missing reset token. Please request a new password reset link.")
+    }
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
+    setSuccess(null)
 
     // Validate passwords match
     if (password !== confirmPassword) {
@@ -41,11 +52,10 @@ export default function RegisterPage() {
 
     try {
       const formData = new FormData()
-      formData.append("name", name)
-      formData.append("email", email)
+      formData.append("token", token)
       formData.append("password", password)
 
-      const result = await registerUser(formData)
+      const result = await resetPassword(formData)
 
       if (result && "error" in result) {
         setError(result.error)
@@ -53,7 +63,12 @@ export default function RegisterPage() {
         return
       }
 
-      router.push("/login")
+      setSuccess("Password reset successfully! Redirecting to sign in page...")
+
+      // Redirect to sign in page after 2 seconds
+      setTimeout(() => {
+        router.push("/signin")
+      }, 2000)
     } catch (error) {
       setError("Something went wrong. Please try again.")
       setIsLoading(false)
@@ -64,8 +79,8 @@ export default function RegisterPage() {
     <div className="container mx-auto flex min-h-screen flex-col items-center justify-center px-4">
       <div className="mx-auto w-full max-w-md space-y-6">
         <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold">Create an Account</h1>
-          <p className="text-muted-foreground">Enter your information to create an account</p>
+          <h1 className="text-3xl font-bold">Reset Password</h1>
+          <p className="text-muted-foreground">Enter your new password below.</p>
         </div>
 
         {error && (
@@ -74,58 +89,43 @@ export default function RegisterPage() {
           </Alert>
         )}
 
+        {success && (
+          <Alert variant="default" className="bg-green-50 text-green-800 border-green-200">
+            <AlertDescription>{success}</AlertDescription>
+          </Alert>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Full Name</Label>
-            <Input
-              id="name"
-              type="text"
-              placeholder="John Doe"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="name@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">New Password</Label>
             <Input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={isLoading || !token}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <Label htmlFor="confirmPassword">Confirm New Password</Label>
             <Input
               id="confirmPassword"
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
+              disabled={isLoading || !token}
             />
           </div>
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Creating account..." : "Register"}
+          <Button type="submit" className="w-full" disabled={isLoading || !token}>
+            {isLoading ? "Resetting..." : "Reset Password"}
           </Button>
         </form>
 
         <div className="text-center text-sm">
-          Already have an account?{" "}
-          <Link href="/login" className="text-primary hover:underline">
-            Login
+          <Link href="/signin" className="text-primary hover:underline">
+            Back to Sign In
           </Link>
         </div>
       </div>

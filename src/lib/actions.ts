@@ -2,12 +2,15 @@
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import { db } from "./db"
-import { hash } from "bcrypt"
+import db from "./db"
+import { hash } from "bcryptjs"
 import { Resend } from "resend"
 import { BookingConfirmationEmail } from "@/components/emails/booking-confirmation"
 import { ContactResponseEmail } from "@/components/emails/contact-response"
 import { SubscriptionConfirmationEmail } from "@/components/emails/subscription-confirmation"
+import { generateVerificationCode } from "./utils"
+import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail } from "./email"
+import crypto from "crypto"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -28,20 +31,156 @@ export async function registerUser(formData: FormData) {
     return { error: "User already exists" }
   }
 
+  // Generate verification code
+  const verificationCode = generateVerificationCode()
+
   // Hash password
   const hashedPassword = await hash(password, 10)
 
   // Create user
-  await db.user.create({
+  const user = await db.user.create({
     data: {
       name,
       email,
       password: hashedPassword,
+      verificationToken: verificationCode,
     },
   })
 
-  revalidatePath("/login")
-  redirect("/login")
+  // Send verification email
+  await sendVerificationEmail(email, name, verificationCode)
+
+  return { success: true }
+}
+
+export async function verifyEmail(formData: FormData) {
+  const email = formData.get("email") as string
+  const code = formData.get("code") as string
+
+  // Find user with matching email and verification token
+  const user = await db.user.findFirst({
+    where: {
+      email,
+      verificationToken: code,
+    },
+  })
+
+  if (!user) {
+    return { error: "Invalid verification code" }
+  }
+
+  // Mark user as verified
+  await db.user.update({
+    where: { id: user.id },
+    data: {
+      emailVerified: new Date(),
+      verificationToken: null,
+    },
+  })
+
+  // Send welcome email
+  await sendWelcomeEmail(email, user.name || "User")
+
+  return { success: true }
+}
+
+export async function resendVerificationEmail(formData: FormData) {
+  const email = formData.get("email") as string
+
+  // Find user with matching email
+  const user = await db.user.findUnique({
+    where: { email },
+  })
+
+  if (!user) {
+    return { error: "User not found" }
+  }
+
+  if (user.emailVerified) {
+    return { error: "Email is already verified" }
+  }
+
+  // Generate new verification code
+  const verificationCode = generateVerificationCode()
+
+  // Update user with new verification code
+  await db.user.update({
+    where: { id: user.id },
+    data: {
+      verificationToken: verificationCode,
+    },
+  })
+
+  // Send verification email
+  await sendVerificationEmail(email, user.name || "User", verificationCode)
+
+  return { success: true }
+}
+
+export async function forgotPassword(formData: FormData) {
+  const email = formData.get("email") as string
+
+  // Find user with matching email
+  const user = await db.user.findUnique({
+    where: { email },
+  })
+
+  if (!user) {
+    // Don't reveal that the user doesn't exist
+    return { success: true }
+  }
+
+  // Generate reset token
+  const resetToken = crypto.randomUUID()
+  const resetTokenExpiry = new Date(Date.now() + 3600000) // 1 hour from now
+
+  // Update user with reset token
+  await db.user.update({
+    where: { id: user.id },
+    data: {
+      resetToken,
+      resetTokenExpiry,
+    },
+  })
+
+  // Send password reset email
+  await sendPasswordResetEmail(email, user.name || "User", resetToken)
+
+  return { success: true }
+}
+
+export async function resetPassword(formData: FormData) {
+  const token = formData.get("token") as string
+  const password = formData.get("password") as string
+
+  // Find user with matching reset token that hasn't expired
+  const user = await db.user.findFirst({
+    where: {
+      resetToken: token,
+      resetTokenExpiry: {
+        gt: new Date(),
+      },
+    },
+  })
+
+  if (!user) {
+    return { error: "Invalid or expired token" }
+  }
+
+  // Hash the new password
+  const hashedPassword = await hash(password, 10)
+
+  // Update user with new password and clear reset token
+  await db.user.update({
+    where: { id: user.id },
+    data: {
+      password: hashedPassword,
+      resetToken: null,
+      resetTokenExpiry: null,
+    },
+  })
+
+  return { success: true }
 }
 
 // Blog actions

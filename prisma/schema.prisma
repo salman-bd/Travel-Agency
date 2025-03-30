@@ -38,17 +38,20 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  role          Role      @default(USER)
-  accounts      Account[]
-  sessions      Session[]
-  blogs         Blog[]
-  bookings      Booking[]
+  id                String    @id @default(cuid())
+  name              String?
+  email             String?   @unique
+  emailVerified     DateTime?
+  image             String?
+  password          String?
+  role              Role      @default(USER)
+  verificationToken String?   // For email verification
+  resetToken        String?   // For password reset
+  resetTokenExpiry  DateTime? // For password reset expiry
+  accounts          Account[]
+  sessions          Session[]
+  blogs             Blog[]
+  bookings          Booking[]
 }
 
 enum Role {
