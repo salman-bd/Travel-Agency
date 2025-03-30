@@ -1,32 +1,52 @@
 "use client"
 
-import type React from "react"
-
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import {
+  verifyEmailSchema,
+  resendVerificationSchema,
+  type VerifyEmailFormValues,
+  type ResendVerificationFormValues,
+} from "@/lib/validations/auth"
 import { verifyEmail, resendVerificationEmail } from "@/lib/actions"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 
 export default function VerifyEmailPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [email, setEmail] = useState("")
-  const [code, setCode] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isResending, setIsResending] = useState(false)
   const [countdown, setCountdown] = useState(0)
 
+  const verifyForm = useForm<VerifyEmailFormValues>({
+    resolver: zodResolver(verifyEmailSchema),
+    defaultValues: {
+      email: "",
+      code: "",
+    },
+  })
+
+  const resendForm = useForm<ResendVerificationFormValues>({
+    resolver: zodResolver(resendVerificationSchema),
+    defaultValues: {
+      email: "",
+    },
+  })
+
   useEffect(() => {
     const emailParam = searchParams.get("email")
     if (emailParam) {
-      setEmail(emailParam)
+      verifyForm.setValue("email", emailParam)
+      resendForm.setValue("email", emailParam)
     }
-  }, [searchParams])
+  }, [searchParams, verifyForm, resendForm])
 
   useEffect(() => {
     if (countdown > 0) {
@@ -35,16 +55,15 @@ export default function VerifyEmailPage() {
     }
   }, [countdown])
 
-  const handleVerify = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const onVerify = async (data: VerifyEmailFormValues) => {
     setIsLoading(true)
     setError(null)
     setSuccess(null)
 
     try {
       const formData = new FormData()
-      formData.append("email", email)
-      formData.append("code", code)
+      formData.append("email", data.email)
+      formData.append("code", data.code)
 
       const result = await verifyEmail(formData)
 
@@ -66,14 +85,14 @@ export default function VerifyEmailPage() {
     }
   }
 
-  const handleResend = async () => {
+  const onResend = async (data: ResendVerificationFormValues) => {
     setIsResending(true)
     setError(null)
     setSuccess(null)
 
     try {
       const formData = new FormData()
-      formData.append("email", email)
+      formData.append("email", data.email)
 
       const result = await resendVerificationEmail(formData)
 
@@ -114,34 +133,41 @@ export default function VerifyEmailPage() {
           </Alert>
         )}
 
-        <form onSubmit={handleVerify} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={isLoading}
+        <Form {...verifyForm}>
+          <form onSubmit={verifyForm.handleSubmit(onVerify)} className="space-y-4">
+            <FormField
+              control={verifyForm.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" disabled={isLoading} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="code">Verification Code</Label>
-            <Input
-              id="code"
-              type="text"
-              placeholder="Enter 6-digit code"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              required
-              disabled={isLoading}
+
+            <FormField
+              control={verifyForm.control}
+              name="code"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Verification Code</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter 6-digit code" disabled={isLoading} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Verifying..." : "Verify Email"}
-          </Button>
-        </form>
+
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Verifying..." : "Verify Email"}
+            </Button>
+          </form>
+        </Form>
 
         <div className="text-center">
           <p className="text-sm text-gray-500">
@@ -149,14 +175,16 @@ export default function VerifyEmailPage() {
             {countdown > 0 ? (
               <span className="text-muted-foreground">Resend in {countdown}s</span>
             ) : (
-              <Button
-                variant="link"
-                className="p-0 h-auto"
-                onClick={handleResend}
-                disabled={isResending || countdown > 0}
-              >
-                {isResending ? "Resending..." : "Resend Code"}
-              </Button>
+              <Form {...resendForm}>
+                <Button
+                  variant="link"
+                  className="p-0 h-auto"
+                  onClick={resendForm.handleSubmit(onResend)}
+                  disabled={isResending || countdown > 0}
+                >
+                  {isResending ? "Resending..." : "Resend Code"}
+                </Button>
+              </Form>
             )}
           </p>
         </div>

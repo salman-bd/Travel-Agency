@@ -1,30 +1,36 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import Link from "next/link"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { forgotPasswordSchema, type ForgotPasswordFormValues } from "@/lib/validations/auth"
 import { forgotPassword } from "@/lib/actions"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const form = useForm<ForgotPasswordFormValues>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: "",
+    },
+  })
+
+  const onSubmit = async (data: ForgotPasswordFormValues) => {
     setIsLoading(true)
     setError(null)
     setSuccess(null)
 
     try {
       const formData = new FormData()
-      formData.append("email", email)
+      formData.append("email", data.email)
 
       const result = await forgotPassword(formData)
 
@@ -35,7 +41,7 @@ export default function ForgotPasswordPage() {
       }
 
       setSuccess("If an account exists with this email, you will receive a password reset link shortly.")
-      setEmail("")
+      form.reset()
     } catch (error) {
       setError("Something went wrong. Please try again.")
     } finally {
@@ -65,23 +71,27 @@ export default function ForgotPasswordPage() {
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="name@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={isLoading}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="name@example.com" type="email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Sending..." : "Send Reset Link"}
-          </Button>
-        </form>
+
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Sending..." : "Send Reset Link"}
+            </Button>
+          </form>
+        </Form>
 
         <div className="text-center text-sm">
           <Link href="/signin" className="text-primary hover:underline">
