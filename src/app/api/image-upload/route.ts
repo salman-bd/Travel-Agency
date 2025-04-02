@@ -33,6 +33,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });  
     }  
 
+    // Check file size (8 MB = 8 * 1024 * 1024 bytes)  
+    const maxFileSize = 8 * 1024 * 1024;  
+    if (file.size > maxFileSize) {  
+      return NextResponse.json({ success: false, message: "File size exceeds 8 MB" }, { status: 400 });  
+    }  
+
     // Convert file to buffer  
     const buffer = Buffer.from(await file.arrayBuffer());  
 

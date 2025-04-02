@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
@@ -50,53 +51,69 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="container mx-auto flex min-h-screen flex-col items-center justify-center px-4">
-      <div className="mx-auto w-full max-w-md space-y-6">
-        <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold">Forgot Password</h1>
-          <p className="text-muted-foreground">
-            Enter your email address and we'll send you a link to reset your password.
-          </p>
-        </div>
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-[#1e3a8a] to-[#0f172a]">
+      <div className="container mx-auto flex flex-1 items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
+          <div className="mb-6 flex justify-center">
+            <Link href="/" className="inline-block">
+              <div className="flex items-center gap-2">
+                <div className="relative h-10 w-10 overflow-hidden rounded-full">
+                  <Image src="/placeholder.svg?height=40&width=40" alt="Rebel Rover Logo" width={40} height={40} />
+                </div>
+                <span className="text-xl font-bold text-[#1e3a8a]">REBEL ROVER</span>
+              </div>
+            </Link>
+          </div>
 
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+          <div className="mb-6 space-y-2 text-center">
+            <h1 className="text-3xl font-bold text-gray-900">Forgot Password</h1>
+            <p className="text-gray-600">Enter your email address and we'll send you a link to reset your password.</p>
+          </div>
 
-        {success && (
-          <Alert variant="default" className="bg-green-50 text-green-800 border-green-200">
-            <AlertDescription>{success}</AlertDescription>
-          </Alert>
-        )}
+          {error && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="name@example.com" type="email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          {success && (
+            <Alert variant="default" className="mb-6 bg-green-50 border-green-200 text-green-800">
+              <AlertDescription>{success}</AlertDescription>
+            </Alert>
+          )}
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Sending..." : "Send Reset Link"}
-            </Button>
-          </form>
-        </Form>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-700">Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="name@example.com"
+                        type="email"
+                        className="border-gray-300 focus:border-[#1e3a8a] focus:ring-[#1e3a8a]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-        <div className="text-center text-sm">
-          <Link href="/signin" className="text-primary hover:underline">
-            Back to Sign In
-          </Link>
+              <Button type="submit" className="w-full bg-black hover:bg-black/90 text-white" disabled={isLoading}>
+                {isLoading ? "Sending..." : "Send Reset Link"}
+              </Button>
+            </form>
+          </Form>
+
+          <div className="mt-6 text-center text-sm text-gray-600">
+            <Link href="/signin" className="font-medium text-[#1e3a8a] hover:underline">
+              Back to Sign In
+            </Link>
+          </div>
         </div>
       </div>
     </div>

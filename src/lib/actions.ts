@@ -10,6 +10,8 @@ import { ContactResponseEmail } from "@/emails/contact-response"
 import { SubscriptionConfirmationEmail } from "@/emails/subscription-confirmation"
 import { generateVerificationCode } from "./utils"
 import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail } from "./sendEmails"
+import { BlogPost } from "@/types/blog"
+import { BlogFormValues } from "@/schemas/blog"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -198,14 +200,8 @@ export async function resetPassword(formData: FormData) {
 }
 
 // Blog actions
-export async function createBlog(formData: FormData) {
-  const title = formData.get("title") as string
-  const content = formData.get("content") as string
-  const excerpt = formData.get("excerpt") as string
-  const imageUrl = formData.get("imageUrl") as string
-  const category = formData.get("category") as string
-  const authorId = formData.get("authorId") as string
-  const published = formData.get("published") === "true"
+export async function createBlog(data: BlogFormValues) {
+  const { title, content, excerpt, imageUrl, category, published, } = data
 
   // Create slug from title
   const slug = title

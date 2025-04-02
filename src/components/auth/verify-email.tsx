@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
+import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -68,7 +70,6 @@ export default function VerifyEmailPage() {
       const result = await verifyEmail(formData);  
 
       if (result && "error" in result) {  
-        // Set error to the error message or null if undefined  
         setError(result.error ?? null);  
         setIsLoading(false);  
         return;  
@@ -95,12 +96,11 @@ export default function VerifyEmailPage() {
       const formData = new FormData()
       formData.append("email", data.email)
 
-      const result = await verifyEmail(formData);  
+      const result = await resendVerificationEmail(formData);  
 
       if (result && "error" in result) {  
-        // Set error to the error message or null if undefined  
         setError(result.error ?? null);  
-        setIsLoading(false);  
+        setIsResending(false);  
         return;  
       }  
 
@@ -114,84 +114,110 @@ export default function VerifyEmailPage() {
   }
 
   return (
-    <div className="container mx-auto flex min-h-screen flex-col items-center justify-center px-4">
-      <div className="mx-auto w-full max-w-md space-y-6">
-        <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold">Verify Your Email</h1>
-          <p className="text-muted-foreground">
-            We've sent a verification code to your email. Please enter it below to verify your account.
-          </p>
-        </div>
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-[#1e3a8a] to-[#0f172a]">
+      <div className="container mx-auto flex flex-1 items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
+          <div className="mb-6 flex justify-center">
+            <Link href="/" className="inline-block">
+              <div className="flex items-center gap-2">
+                <div className="relative h-10 w-10 overflow-hidden rounded-full">
+                  <Image src="/placeholder.svg?height=40&width=40" alt="Rebel Rover Logo" width={40} height={40} />
+                </div>
+                <span className="text-xl font-bold text-[#1e3a8a]">REBEL ROVER</span>
+              </div>
+            </Link>
+          </div>
 
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+          <div className="mb-6 space-y-2 text-center">
+            <h1 className="text-3xl font-bold text-gray-900">Verify Your Email</h1>
+            <p className="text-gray-600">
+              We've sent a verification code to your email. Please enter it below to verify your account.
+            </p>
+          </div>
 
-        {success && (
-          <Alert variant="default" className="bg-green-50 text-green-800 border-green-200">
-            <AlertDescription>{success}</AlertDescription>
-          </Alert>
-        )}
+          {error && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
-        <Form {...verifyForm}>
-          <form onSubmit={verifyForm.handleSubmit(onVerify)} className="space-y-4">
-            <FormField
-              control={verifyForm.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" disabled={isLoading} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+          {success && (
+            <Alert variant="default" className="mb-6 bg-green-50 border-green-200 text-green-800">
+              <AlertDescription>{success}</AlertDescription>
+            </Alert>
+          )}
+
+          <Form {...verifyForm}>
+            <form onSubmit={verifyForm.handleSubmit(onVerify)} className="space-y-4">
+              <FormField
+                control={verifyForm.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-700">Email</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="email" 
+                        disabled={isLoading} 
+                        className="border-gray-300 focus:border-[#1e3a8a] focus:ring-[#1e3a8a]" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={verifyForm.control}
+                name="code"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-700">Verification Code</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Enter 6-digit code" 
+                        disabled={isLoading} 
+                        className="border-gray-300 focus:border-[#1e3a8a] focus:ring-[#1e3a8a]" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button 
+                type="submit" 
+                className="w-full bg-black hover:bg-black/90 text-white" 
+                disabled={isLoading}
+              >
+                {isLoading ? "Verifying..." : "Verify Email"}
+              </Button>
+            </form>
+          </Form>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-500">
+              Didn't receive the code?{" "}
+              {countdown > 0 ? (
+                <span className="text-gray-400">Resend in {countdown}s</span>
+              ) : (
+                <Form {...resendForm}>
+                  <Button
+                    variant="link"
+                    className="p-0 h-auto text-[#1e3a8a]"
+                    onClick={resendForm.handleSubmit(onResend)}
+                    disabled={isResending || countdown > 0}
+                  >
+                    {isResending ? "Resending..." : "Resend Code"}
+                  </Button>
+                </Form>
               )}
-            />
-
-            <FormField
-              control={verifyForm.control}
-              name="code"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Verification Code</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter 6-digit code" disabled={isLoading} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Verifying..." : "Verify Email"}
-            </Button>
-          </form>
-        </Form>
-
-        <div className="text-center">
-          <p className="text-sm text-gray-500">
-            Didn't receive the code?{" "}
-            {countdown > 0 ? (
-              <span className="text-muted-foreground">Resend in {countdown}s</span>
-            ) : (
-              <Form {...resendForm}>
-                <Button
-                  variant="link"
-                  className="p-0 h-auto"
-                  onClick={resendForm.handleSubmit(onResend)}
-                  disabled={isResending || countdown > 0}
-                >
-                  {isResending ? "Resending..." : "Resend Code"}
-                </Button>
-              </Form>
-            )}
-          </p>
+            </p>
+          </div>
         </div>
       </div>
     </div>
   )
 }
-

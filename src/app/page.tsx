@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, ChevronLeft, ChevronRight, DollarSign, Star, Trophy, Users2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 export default function Home() {
   return (
@@ -8,26 +9,30 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative h-[600px] w-full bg-[url('/bg/suitcase-travel.jpg?height=600&width=1200')] bg-cover bg-center">
         <div className="absolute inset-0 bg-black/30"></div>
-        <div className="container relative z-10 mx-auto flex h-full flex-col items-start justify-center px-4 text-white">
-          <h1 className="mb-2 max-w-md text-4xl font-bold leading-tight md:text-5xl lg:text-6xl">
-            Make it your journey
-          </h1>
-          <div className="mt-6 flex gap-4">
-            <Link
-              href="/destinations"
-              className="rounded-full bg-primary px-6 py-2 text-sm font-medium text-white hover:bg-primary/90"
-            >
-              Explore Now
-            </Link>
-          </div>
-        </div>
+        <div className="container relative z-10 mx-auto flex h-full flex-col items-start justify-center px-4 text-white pb-8">  
+          <h1 className="mb-2 max-w-md text-4xl font-bold leading-tight md:text-5xl lg:text-6xl">  
+            Make in your journey  
+          </h1>  
+          <p>Explore the world with what you love beautiful natural beauty.</p>  
+          <div className="mt-6 flex gap-4">  
+            <Link  
+              href="/destinations"  
+              className="rounded-full bg-black px-6 py-4 text-sm font-medium text-white hover:bg-black/90 opacity-80"  
+            >  
+              Explore Now  
+            </Link>  
+          </div>  
+          <p className="absolute bottom-4">Popular Place : Bali, Istanbul, Rome, Paris.</p>  
+        </div>  
       </section>
 
       {/* Explore Section */}
       <section className="py-16 md:py-32">
         <div className="container mx-auto px-4">
-          <h2 className="mb-8 text-center text-4xl md:text-5xl font-bold">Explore new worlds with exotic natural scenery</h2>
-          <p className="text-center pb-4">Explore the world with what you love beautiful natural beauty.</p>
+          <div className="mb-8 flex flex-col gap-4">
+            <h2 className="text-center text-4xl md:text-5xl font-bold">Explore new worlds with exotic natural scenery</h2>
+            <p className="text-center text-xl">Explore the world with what you love beautiful natural beauty.</p>
+          </div>
           <div className="relative">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               <div className="group overflow-hidden rounded-lg">

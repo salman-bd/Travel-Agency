@@ -6,7 +6,7 @@ export default async function NewBlogPage() {
   const user = await getCurrentUser()
 
   if (!user || user.role !== "ADMIN") {
-    redirect("/login")
+    redirect("/signin")
   }
 
   return (

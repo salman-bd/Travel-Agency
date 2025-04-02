@@ -11,9 +11,14 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { blogSchema, type BlogFormValues } from "@/lib/validations/blog"
-import axiosClient from "@/lib/axios"
+import { blogSchema, type BlogFormValues } from "@/schemas/blog"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import axios from "axios"
+import { Loader2, Upload } from "lucide-react"
+import Image from "next/image"
+import { toast, Toaster } from "react-hot-toast"
+import { createBlog } from "@/lib/actions"
+import { z } from "zod"
 
 interface BlogFormProps {
   blog?: Blog
@@ -25,6 +30,7 @@ const categories = ["Adventure", "Beach", "City", "Culture", "Food", "Mountain",
 export default function BlogForm({ blog, authorId }: BlogFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [imageUploading, setImageUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const form = useForm<BlogFormValues>({
@@ -42,23 +48,54 @@ export default function BlogForm({ blog, authorId }: BlogFormProps) {
   const onSubmit = async (data: BlogFormValues) => {
     setIsLoading(true)
     setError(null)
-
     try {
       if (blog) {
         // Update existing blog
-        await axiosClient.put(`/api/blogs/${blog.id}`, data)
+        await axios.put(`/api/blogs/${blog.id}`, data)
       } else if (authorId) {
         // Create new blog
-        await axiosClient.post("/api/blogs", data)
+        await createBlog(data)
       }
-
-      router.push("/admin/blogs")
+      router.push("/admin/dashboard/blogs")
       router.refresh()
     } catch (error: any) {
       setError(error.response?.data?.error || "Something went wrong. Please try again.")
       setIsLoading(false)
     }
   }
+
+  // Handle image upload  
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {  
+    const file = e.target.files?.[0];  
+    if (!file) return;  
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB  
+    if (file.size > MAX_FILE_SIZE) {  
+      setError("File size exceeds 5MB. Please choose a smaller file.");  
+      toast.error("File size exceeds 5MB. Please choose a smaller file.", {duration:4000});  
+      return;  
+    }  
+    const formData = new FormData();  
+    formData.append("file", file);  
+    try {  
+      setImageUploading(true);  
+      const response = await axios.post("/api/image-upload", formData, {  
+        headers: {  
+          "Content-Type": "multipart/form-data",  
+        },  
+      });  
+      if (!response.data.success) {  
+        setError(response?.data?.message || "Something went wrong. Please try again.");  
+        throw new Error(response.data.message || "Failed to add the image");  
+      }  
+      form.setValue("imageUrl", response.data.url);  
+      toast.success("Image uploaded successfully.", {duration: 4000});  
+    } catch (error) {  
+      console.error("Error uploading image:", error);  
+      toast.error("Something went wrong uploading image.", {duration: 4000});    
+    } finally {  
+      setImageUploading(false);  
+    }  
+  };  
 
   return (
     <div className="space-y-6">
@@ -67,6 +104,7 @@ export default function BlogForm({ blog, authorId }: BlogFormProps) {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
+      <Toaster position="top-center"/>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -116,10 +154,46 @@ export default function BlogForm({ blog, authorId }: BlogFormProps) {
             name="imageUrl"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Image URL</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
+                <FormLabel>Blog Image</FormLabel>
+                <div className="space-y-4">
+                  {field.value && (
+                    <div className="relative w-60 h-48 rounded-md overflow-hidden border mx-auto">
+                      <Image
+                        src={`${field.value}`}
+                        width={300}
+                        height={300}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="flex items-center gap-4">
+                    <FormControl>
+                      <Input type="text" placeholder="Image URL" {...field} className="hidden"/>
+                    </FormControl>
+                    <div className="relative">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                      />
+                      <Button type="button" variant="outline">
+                        {imageUploading ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin text-teal-600"/>
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="mr-2 h-4 w-4" />
+                            Upload Image
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
                 <FormMessage />
               </FormItem>
             )}
@@ -132,7 +206,7 @@ export default function BlogForm({ blog, authorId }: BlogFormProps) {
               <FormItem>
                 <FormLabel>Excerpt</FormLabel>
                 <FormControl>
-                  <Textarea rows={3} {...field} />
+                  <Textarea rows={2} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -146,7 +220,7 @@ export default function BlogForm({ blog, authorId }: BlogFormProps) {
               <FormItem>
                 <FormLabel>Content</FormLabel>
                 <FormControl>
-                  <Textarea rows={10} {...field} />
+                  <Textarea rows={6} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

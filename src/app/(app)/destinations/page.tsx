@@ -66,7 +66,7 @@ export default async function DestinationsPage() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Hero Section */}
-      <section className="relative h-[500px] w-full bg-[url('/bg/travel-concept.jpg?height=500&width=1200')] bg-cover bg-center">
+      <section className="relative h-[500px] w-full bg-[url('/bg/travel1.jpg?height=500&width=1200')] bg-cover bg-center">
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center px-4 text-center text-white">
           <h1 className="mb-2 text-4xl font-bold md:text-5xl">Great Places</h1>

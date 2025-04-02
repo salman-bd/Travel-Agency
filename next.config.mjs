@@ -15,6 +15,7 @@ const nextConfig = {
   },
   images: {
     unoptimized: false,
+    domains: ['res.cloudinary.com'],
   },
 }
 
