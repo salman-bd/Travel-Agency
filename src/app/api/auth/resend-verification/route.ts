@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import db from "@/lib/db"
 import { generateVerificationCode } from "@/lib/utils"
-import { sendVerificationEmail } from "@/lib/email"
+import { sendVerificationEmail } from "@/lib/sendEmails"
 
 export async function POST(req: NextRequest) {
   try {

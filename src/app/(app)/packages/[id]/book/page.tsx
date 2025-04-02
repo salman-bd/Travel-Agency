@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 import Image from "next/image"
-import { db } from "@/lib/db"
+import db from "@/lib/db"
 import { requireAuth } from "@/lib/auth"
 import BookingForm from "@/components/booking-form"
 

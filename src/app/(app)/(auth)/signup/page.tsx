@@ -10,9 +10,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Facebook, X, Eye, EyeOff } from "lucide-react"
-import { registerSchema, type RegisterFormValues } from "@/lib/validations/auth"
-import axiosClient from "@/lib/axios"
+import { registerSchema, type RegisterFormValues } from "@/schemas/auth"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import axios from "axios"
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -46,10 +46,11 @@ export default function SignUpPage() {
     setError(null)
 
     try {
-      const response = await axiosClient.post("/api/signup", {
+      const response = await axios.post("/api/auth/signup", {
         name: data.name,
         email: data.email,
         password: data.password,
+        role: 'USER'
       })
 
       // Redirect to verification page

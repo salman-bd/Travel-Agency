@@ -20,42 +20,42 @@ import { Button } from "@/components/ui/button"
 const sidebarItems = [
   {
     title: "Dashboard",
-    href: "/admin",
+    href: "/admin/dashboard",
     icon: <LayoutDashboard className="h-5 w-5" />,
   },
   {
     title: "Destinations",
-    href: "/admin/destinations",
+    href: "/admin/dashboard/destinations",
     icon: <Map className="h-5 w-5" />,
   },
   {
     title: "Packages",
-    href: "/admin/packages",
+    href: "/admin/dashboard/packages",
     icon: <Package className="h-5 w-5" />,
   },
   {
     title: "Bookings",
-    href: "/admin/bookings",
+    href: "/admin/dashboard/bookings",
     icon: <CalendarClock className="h-5 w-5" />,
   },
   {
     title: "Users",
-    href: "/admin/users",
+    href: "/admin/dashboard/users",
     icon: <Users className="h-5 w-5" />,
   },
   {
     title: "Contacts",
-    href: "/admin/contacts",
+    href: "/admin/dashboard/contacts",
     icon: <MessageSquare className="h-5 w-5" />,
   },
   {
     title: "Blogs",
-    href: "/admin/blogs",
+    href: "/admin/dashboard/blogs",
     icon: <FileText className="h-5 w-5" />,
   },
   {
     title: "Settings",
-    href: "/admin/settings",
+    href: "/admin/dashboard/settings",
     icon: <Settings className="h-5 w-5" />,
   },
 ]

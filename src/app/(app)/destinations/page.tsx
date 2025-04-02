@@ -1,65 +1,67 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Star, ChevronRight } from "lucide-react"
+import { getDestinations } from "@/lib/actions"
 
-export default function DestinationsPage() {
+export default async function DestinationsPage() {
+  const destinations = await getDestinations()
   // Sample destination data
-  const destinations = [
-    {
-      id: 1,
-      name: "Paris",
-      country: "France",
-      image: "/placeholder.svg?height=300&width=400",
-      rating: 4.8,
-      price: "$1,299",
-      category: "City",
-    },
-    {
-      id: 2,
-      name: "Santorini",
-      country: "Greece",
-      image: "/placeholder.svg?height=300&width=400",
-      rating: 4.9,
-      price: "$1,499",
-      category: "Island",
-    },
-    {
-      id: 3,
-      name: "Kyoto",
-      country: "Japan",
-      image: "/placeholder.svg?height=300&width=400",
-      rating: 4.7,
-      price: "$1,899",
-      category: "Culture",
-    },
-    {
-      id: 4,
-      name: "Bali",
-      country: "Indonesia",
-      image: "/placeholder.svg?height=300&width=400",
-      rating: 4.6,
-      price: "$1,199",
-      category: "Beach",
-    },
-    {
-      id: 5,
-      name: "Swiss Alps",
-      country: "Switzerland",
-      image: "/placeholder.svg?height=300&width=400",
-      rating: 4.8,
-      price: "$2,099",
-      category: "Mountain",
-    },
-    {
-      id: 6,
-      name: "Machu Picchu",
-      country: "Peru",
-      image: "/placeholder.svg?height=300&width=400",
-      rating: 4.9,
-      price: "$1,799",
-      category: "Adventure",
-    },
-  ]
+  // const destinations = [
+  //   {
+  //     id: 1,
+  //     name: "Paris",
+  //     country: "France",
+  //     image: "/placeholder.svg?height=300&width=400",
+  //     rating: 4.8,
+  //     price: "$1,299",
+  //     category: "City",
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Santorini",
+  //     country: "Greece",
+  //     image: "/placeholder.svg?height=300&width=400",
+  //     rating: 4.9,
+  //     price: "$1,499",
+  //     category: "Island",
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "Kyoto",
+  //     country: "Japan",
+  //     image: "/placeholder.svg?height=300&width=400",
+  //     rating: 4.7,
+  //     price: "$1,899",
+  //     category: "Culture",
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "Bali",
+  //     country: "Indonesia",
+  //     image: "/placeholder.svg?height=300&width=400",
+  //     rating: 4.6,
+  //     price: "$1,199",
+  //     category: "Beach",
+  //   },
+  //   {
+  //     id: 5,
+  //     name: "Swiss Alps",
+  //     country: "Switzerland",
+  //     image: "/placeholder.svg?height=300&width=400",
+  //     rating: 4.8,
+  //     price: "$2,099",
+  //     category: "Mountain",
+  //   },
+  //   {
+  //     id: 6,
+  //     name: "Machu Picchu",
+  //     country: "Peru",
+  //     image: "/placeholder.svg?height=300&width=400",
+  //     rating: 4.9,
+  //     price: "$1,799",
+  //     category: "Adventure",
+  //   },
+  // ]
 
   return (
     <div className="flex min-h-screen flex-col">

@@ -12,7 +12,7 @@ import {
   resendVerificationSchema,
   type VerifyEmailFormValues,
   type ResendVerificationFormValues,
-} from "@/lib/validations/auth"
+} from "@/schemas/auth"
 import { verifyEmail, resendVerificationEmail } from "@/lib/actions"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 
@@ -65,13 +65,14 @@ export default function VerifyEmailPage() {
       formData.append("email", data.email)
       formData.append("code", data.code)
 
-      const result = await verifyEmail(formData)
+      const result = await verifyEmail(formData);  
 
-      if (result && "error" in result) {
-        setError(result.error)
-        setIsLoading(false)
-        return
-      }
+      if (result && "error" in result) {  
+        // Set error to the error message or null if undefined  
+        setError(result.error ?? null);  
+        setIsLoading(false);  
+        return;  
+      }  
 
       setSuccess("Email verified successfully! Redirecting to sign in page...")
 
@@ -94,13 +95,14 @@ export default function VerifyEmailPage() {
       const formData = new FormData()
       formData.append("email", data.email)
 
-      const result = await resendVerificationEmail(formData)
+      const result = await verifyEmail(formData);  
 
-      if (result && "error" in result) {
-        setError(result.error)
-        setIsResending(false)
-        return
-      }
+      if (result && "error" in result) {  
+        // Set error to the error message or null if undefined  
+        setError(result.error ?? null);  
+        setIsLoading(false);  
+        return;  
+      }  
 
       setSuccess("Verification code resent successfully!")
       setCountdown(60) // Set 60 seconds cooldown

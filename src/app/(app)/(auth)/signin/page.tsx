@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Facebook, X, Eye, EyeOff } from "lucide-react"
-import { loginSchema, type LoginFormValues } from "@/lib/validations/auth"
+import { loginSchema, type LoginFormValues } from "@/schemas/auth"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 
 export default function SignInPage() {

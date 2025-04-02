@@ -10,9 +10,10 @@ export default async function AdminLayout({
   children: React.ReactNode
 }) {
   const user = await getCurrentUser()
-
+  // console.log('User data in the dashboard: ', user);
+  
   if (!user || user.role !== "ADMIN") {
-    redirect("/login")
+    redirect("/admin")
   }
 
   return (

@@ -1,14 +1,14 @@
 import { Resend } from "resend"
-import { VerificationEmail } from "@/components/emails/verification-email"
-import { WelcomeEmail } from "@/components/emails/welcome-email"
-import { PasswordResetEmail } from "@/components/emails/password-reset-email"
+import { VerificationEmail } from "@/emails/verification-email"
+import { WelcomeEmail } from "@/emails/welcome-email"
+import { PasswordResetEmail } from "@/emails/password-reset-email"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function sendVerificationEmail(email: string, name: string, verificationCode: string) {
   try {
     await resend.emails.send({
-      from: "Rebel Rover <verification@rebelrover.com>",
+      from: "Rebel Rover <verification@cscsylhet.com>",
       to: [email],
       subject: "Verify your email address",
       react: VerificationEmail({
@@ -26,7 +26,7 @@ export async function sendVerificationEmail(email: string, name: string, verific
 export async function sendWelcomeEmail(email: string, name: string) {
   try {
     await resend.emails.send({
-      from: "Rebel Rover <welcome@rebelrover.com>",
+      from: "Rebel Rover <welcome@cscsylhet.com>",
       to: [email],
       subject: "Welcome to Rebel Rover!",
       react: WelcomeEmail({
@@ -45,7 +45,7 @@ export async function sendPasswordResetEmail(email: string, name: string, resetT
     const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`
 
     await resend.emails.send({
-      from: "Rebel Rover <reset@rebelrover.com>",
+      from: "Rebel Rover <reset@cscsylhet.com>",
       to: [email],
       subject: "Reset your password",
       react: PasswordResetEmail({

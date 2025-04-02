@@ -171,29 +171,29 @@ const Footer = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link href="/admin/destinations" className="hover:text-primary">
+                    <Link href="/admin/dashboard/destinations" className="hover:text-primary">
                       Manage Destinations
                     </Link>
                   </li>
                   <li>
-                    <Link href="/admin/packages" className="hover:text-primary">
+                    <Link href="/admin/dashboard/packages" className="hover:text-primary">
                       Manage Packages
                     </Link>
                   </li>
                   <li>
-                    <Link href="/admin/blogs" className="hover:text-primary">
+                    <Link href="/admin/dashboard/blogs" className="hover:text-primary">
                       Manage Blogs
                     </Link>
                   </li>
                   <li>
-                    <Link href="/admin/bookings" className="hover:text-primary">
+                    <Link href="/admin/dashboard/bookings" className="hover:text-primary">
                       Manage Bookings
                     </Link>
                   </li>
                 </>
               ) : (
                 <li>
-                  <Link href="/signin" className="flex items-center gap-2 hover:text-primary">
+                  <Link href="/admin" className="flex items-center gap-2 hover:text-primary">
                     <Lock className="h-3 w-3" />
                     <span>Admin Sign In</span>
                   </Link>

@@ -9,70 +9,60 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Facebook, X, Eye, EyeOff } from "lucide-react"
-import { loginSchema, type LoginFormValues } from "@/schemas/auth"
+import { registerSchema, type RegisterFormValues } from "@/schemas/auth"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import axios from "axios"
+import { registerUser } from "@/lib/actions"
 
-export default function SignInPage() {
+export default function SignUpPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { data: session } = useSession()
+  const { status } = useSession()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  const redirect = searchParams.get("redirect") || "/admin/dashboard"
-  const error_type = searchParams.get("error")
+  const redirect = searchParams.get("redirect") || "/"
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
-      remember: false,
+      confirmPassword: "",
     },
   })
 
   useEffect(() => {
-    if (session?.user.role === "ADMIN") {
+    if (status === "authenticated") {
       router.push(redirect)
     }
+  }, [status, router, redirect])
 
-    // Set error message based on error type
-    if (error_type === "EMAIL_NOT_VERIFIED") {
-      setError("Please verify your email before signing in.")
-      form.setValue("email", searchParams.get("email") || "")
-    }
-  }, [session, router, redirect, error_type, searchParams, form])
-
-  const onSubmit = async (data: LoginFormValues) => {
+  const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true)
     setError(null)
 
     try {
-      const result = await signIn("credentials", {
+      const registrationData ={
+        name: data.name,
         email: data.email,
         password: data.password,
-        remember: data.remember,
-        redirect: false,
-      })
-
-      if (result?.error === "EMAIL_NOT_VERIFIED") {
+        role: 'ADMIN'
+      }
+      const result = await registerUser(registrationData)
+      if (!result.success) {
+        setError(result?.message || "Something went wrong. Please try again.")
+        router.push('/admin')
+      } else if (result.success) {
         router.push(`/verify-email?email=${encodeURIComponent(data.email)}`)
-        return
       }
-
-      if (result?.error) {
-        setError("Invalid email or password")
-        setIsLoading(false)
-        return
-      }
-
-      router.push(redirect)
-      router.refresh()
-    } catch (error) {
-      setError("Something went wrong. Please try again.")
+    } catch (error: any) {
+      setError(error.response?.data?.error || "Something went wrong. Please try again.")
+    } finally {
       setIsLoading(false)
     }
   }
@@ -91,18 +81,32 @@ export default function SignInPage() {
     <div className="container mx-auto flex min-h-screen flex-col items-center justify-center px-4">
       <div className="mx-auto w-full max-w-md space-y-6">
         <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold">Sign In</h1>
-          <p className="text-muted-foreground">Enter your credentials to access your account</p>
+          <h1 className="text-3xl font-bold">Create an Account</h1>
+          <p className="text-muted-foreground">Enter your information to create an account</p>
         </div>
 
         {error && (
           <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription className="text-center">{error}</AlertDescription>
           </Alert>
         )}
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Full Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="John Doe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="email"
@@ -122,12 +126,7 @@ export default function SignInPage() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <div className="flex items-center justify-between">
-                    <FormLabel>Password</FormLabel>
-                    <Link href="/forgot-password" className="text-sm text-primary hover:underline">
-                      Forgot password?
-                    </Link>
-                  </div>
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input type={showPassword ? "text" : "password"} {...field} />
@@ -151,21 +150,33 @@ export default function SignInPage() {
 
             <FormField
               control={form.control}
-              name="remember"
+              name="confirmPassword"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-2 space-y-0">
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
                   <FormControl>
-                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                    <div className="relative">
+                      <Input type={showConfirmPassword ? "text" : "password"} {...field} />
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 -translate-y-1/2"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-4 w-4 text-gray-500" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-gray-500" />
+                        )}
+                      </button>
+                    </div>
                   </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Remember me</FormLabel>
-                  </div>
+                  <FormMessage />
                 </FormItem>
               )}
             />
 
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoading ? "Creating account..." : "Sign Up"}
             </Button>
           </form>
         </Form>
@@ -209,9 +220,9 @@ export default function SignInPage() {
         </div>
 
         <div className="text-center text-sm">
-          Don&apos;t have an account?{" "}
-          <Link href={`/admin/register?redirect=${encodeURIComponent(redirect)}`} className="text-primary hover:underline">
-            Register
+          Already have an account?{" "}
+          <Link href={`/signin?redirect=${encodeURIComponent(redirect)}`} className="text-primary hover:underline">
+            Sign In
           </Link>
         </div>
       </div>

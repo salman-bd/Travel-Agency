@@ -1,26 +1,36 @@
+'use client'
+
+// components/admin/admin-packages.tsx
 import Link from "next/link"
 import Image from "next/image"
-import { db } from "@/lib/db"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Edit, Trash2, Plus } from "lucide-react"
-import { deleteDestination } from "@/lib/actions"
+import { Edit, Trash2, Plus } from 'lucide-react'
+import { deletePackage } from "@/lib/actions"
 
-export default async function AdminDestinationsPage() {
-  const destinations = await db.destination.findMany({
-    orderBy: {
-      name: "asc",
-    },
-  })
+interface Package {
+  id: string
+  title: string
+  imageUrl: string
+  duration: number
+  price: number
+  destination: {
+    name: string
+  }
+}
 
+interface AdminPackagesProps {
+  packages: Package[]
+}
+
+export default function AdminPackages({ packages }: AdminPackagesProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Destinations</h1>
-        <Link href="/admin/destinations/new">
+        <h1 className="text-2xl font-bold">Packages</h1>
+        <Link href="/admin/dashboard/packages/new">
           <Button>
-            <Plus className="mr-2 h-4 w-4" /> Add New Destination
+            <Plus className="mr-2 h-4 w-4" /> Add New Package
           </Button>
         </Link>
       </div>
@@ -30,53 +40,47 @@ export default async function AdminDestinationsPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Image</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Country</TableHead>
-              <TableHead>Category</TableHead>
+              <TableHead>Title</TableHead>
+              <TableHead>Destination</TableHead>
+              <TableHead>Duration</TableHead>
               <TableHead>Price</TableHead>
-              <TableHead>Featured</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {destinations.length === 0 ? (
+            {packages.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center">
-                  No destinations found
+                <TableCell colSpan={6} className="text-center">
+                  No packages found
                 </TableCell>
               </TableRow>
             ) : (
-              destinations.map((destination) => (
-                <TableRow key={destination.id}>
+              packages.map((pkg) => (
+                <TableRow key={pkg.id}>
                   <TableCell>
                     <div className="h-10 w-10 overflow-hidden rounded-md">
                       <Image
-                        src={destination.imageUrl || "/placeholder.svg"}
-                        alt={destination.name}
+                        src={pkg.imageUrl || "/placeholder.svg"}
+                        alt={pkg.title}
                         width={40}
                         height={40}
                         className="h-full w-full object-cover"
                       />
                     </div>
                   </TableCell>
-                  <TableCell className="font-medium">{destination.name}</TableCell>
-                  <TableCell>{destination.country}</TableCell>
-                  <TableCell>{destination.category}</TableCell>
-                  <TableCell>${destination.price.toFixed(2)}</TableCell>
-                  <TableCell>
-                    <Badge variant={destination.featured ? "default" : "outline"}>
-                      {destination.featured ? "Featured" : "Standard"}
-                    </Badge>
-                  </TableCell>
+                  <TableCell className="font-medium">{pkg.title}</TableCell>
+                  <TableCell>{pkg.destination.name}</TableCell>
+                  <TableCell>{pkg.duration} days</TableCell>
+                  <TableCell>${pkg.price.toFixed(2)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Link href={`/admin/destinations/${destination.id}`}>
+                      <Link href={`/admin/dashboard/packages/${pkg.id}`}>
                         <Button variant="ghost" size="icon">
                           <Edit className="h-4 w-4" />
                           <span className="sr-only">Edit</span>
                         </Button>
                       </Link>
-                      <form action={async () => await deleteDestination(destination.id)}>
+                      <form action={async () => await deletePackage(pkg.id)}>
                         <Button variant="ghost" size="icon" type="submit">
                           <Trash2 className="h-4 w-4 text-destructive" />
                           <span className="sr-only">Delete</span>
@@ -93,4 +97,3 @@ export default async function AdminDestinationsPage() {
     </div>
   )
 }
-

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { db } from "@/lib/db"
+import db from "@/lib/db"
 import BlogForm from "@/components/admin/blog-form"
 
 interface BlogEditPageProps {

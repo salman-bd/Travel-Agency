@@ -3,54 +3,67 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import db from "./db"
-import { hash } from "bcryptjs"
+import bcryptjs from "bcryptjs"
 import { Resend } from "resend"
-import { BookingConfirmationEmail } from "@/components/emails/booking-confirmation"
-import { ContactResponseEmail } from "@/components/emails/contact-response"
-import { SubscriptionConfirmationEmail } from "@/components/emails/subscription-confirmation"
+import { BookingConfirmationEmail } from "@/emails/booking-confirmation"
+import { ContactResponseEmail } from "@/emails/contact-response"
+import { SubscriptionConfirmationEmail } from "@/emails/subscription-confirmation"
 import { generateVerificationCode } from "./utils"
-import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail } from "./email"
-import crypto from "crypto"
+import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail } from "./sendEmails"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+interface ResgistrationData {
+  name: string
+  email: string
+  password: string
+  role: string
+}
+
 // User actions
-export async function registerUser(formData: FormData) {
-  const name = formData.get("name") as string
-  const email = formData.get("email") as string
-  const password = formData.get("password") as string
+export async function registerUser(data: ResgistrationData) {
+  const { name, email, password, role } = data
 
-  // Check if user already exists
-  const existingUser = await db.user.findUnique({
-    where: {
-      email,
-    },
-  })
+    // Check if user already exists
+    const existingUser = await db.user.findUnique({ where: { email }, })
+    const verificationCode = generateVerificationCode()
 
-  if (existingUser) {
-    return { error: "User already exists" }
-  }
+    if (existingUser) {
+      if (existingUser.isVerified) {  
+        return { success: false, message: "User already exists with this email" } 
+      }       
+      const hashedPassword = await bcryptjs.hash(password, 10);  
+      const verificationExpires = new Date(Date.now() + 3600000); // 1 hour from now  
+      await db.user.update({  
+          where: {  
+              email: email,  
+          },  
+          data: {  
+              password: hashedPassword,  
+              verificationCode,
+              verificationExpires, 
+              role,
+          },  
+      });
+    } else {
+      const hashedPassword = await bcryptjs.hash(password, 10)
+      const verificationExpires = new Date(Date.now() + 3600000) // 1 hour from now
+      // Create user
+      await db.user.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword,
+          verificationCode,
+          verificationExpires,
+          role,
+        },
+      })
+    }
+    // Send verification email
+    await sendVerificationEmail(email, name, verificationCode)
 
-  // Generate verification code
-  const verificationCode = generateVerificationCode()
-
-  // Hash password
-  const hashedPassword = await hash(password, 10)
-
-  // Create user
-  const user = await db.user.create({
-    data: {
-      name,
-      email,
-      password: hashedPassword,
-      verificationToken: verificationCode,
-    },
-  })
-
-  // Send verification email
-  await sendVerificationEmail(email, name, verificationCode)
-
-  return { success: true }
+  return { success: true, message: "Account updated successfully!"}
 }
 
 export async function verifyEmail(formData: FormData) {
@@ -61,7 +74,7 @@ export async function verifyEmail(formData: FormData) {
   const user = await db.user.findFirst({
     where: {
       email,
-      verificationToken: code,
+      verificationCode: code,
     },
   })
 
@@ -73,8 +86,9 @@ export async function verifyEmail(formData: FormData) {
   await db.user.update({
     where: { id: user.id },
     data: {
+      isVerified: true,
       emailVerified: new Date(),
-      verificationToken: null,
+      verificationCode: null,
     },
   })
 
@@ -107,7 +121,7 @@ export async function resendVerificationEmail(formData: FormData) {
   await db.user.update({
     where: { id: user.id },
     data: {
-      verificationToken: verificationCode,
+      verificationCode: verificationCode,
     },
   })
 
@@ -315,7 +329,14 @@ export async function deleteDestination(id: string) {
     },
   })
 
-  revalidatePath("/admin/destinations")
+  revalidatePath("/admin/dashboard/destinations")
+  return { success: true }
+}
+
+export async function getDestinations() {
+  const destinations = await db.destination.findMany()
+  // console.log('Destinations: ', destinations);
+  return destinations
 }
 
 // Package actions
@@ -361,8 +382,8 @@ export async function createPackage(formData: FormData) {
     })
   }
 
-  revalidatePath("/admin/packages")
-  redirect("/admin/packages")
+  revalidatePath("/admin/dashboard/packages")
+  redirect("/admin/dashboard/packages")
 }
 
 export async function updatePackage(formData: FormData) {
@@ -418,8 +439,9 @@ export async function updatePackage(formData: FormData) {
     })
   }
 
-  revalidatePath("/admin/packages")
-  redirect("/admin/packages")
+  revalidatePath("/admin/dashboard/packages")
+  redirect("/admin/dashboard/packages")
+  return { success: true, message: "Package updated successfully!"}
 }
 
 export async function deletePackage(id: string) {
@@ -430,6 +452,52 @@ export async function deletePackage(id: string) {
   })
 
   revalidatePath("/admin/packages")
+}
+
+export async function getPackages() {  
+  const packages = await db.package.findMany();  
+  const processedPackages = await Promise.all(packages.map(async (pkg) => {  
+    const destination = await db.destination.findUnique({ where: { id: pkg.destinationId }});  
+
+    const packageData = {  
+      id: pkg.id,  
+      title: pkg.title,  
+      description: pkg.description,  
+      price: pkg.price,  
+      duration: pkg.duration,  
+      destinationId: pkg.destinationId,  
+      inclusions: pkg.inclusions,  
+      exclusions: pkg.exclusions,  
+      imageUrl: pkg.imageUrl,  
+      destination: destination // Including the resolved destination  
+    };  
+    return packageData;  
+  }));  
+
+  return processedPackages;  
+}  
+
+// Add to lib/actions.ts
+export async function getPackageById(id: string) {
+  try {
+    const pkg = await db.package.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        itinerary: {
+          orderBy: {
+            day: "asc",
+          },
+        },
+      },
+    })
+    
+    return pkg
+  } catch (error) {
+    console.error("Error fetching package:", error)
+    throw new Error("Failed to fetch package")
+  }
 }
 
 // Booking actions

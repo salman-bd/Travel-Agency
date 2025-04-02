@@ -37,22 +37,24 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model User {
-  id                String    @id @default(cuid())
-  name              String?
-  email             String?   @unique
-  emailVerified     DateTime?
-  image             String?
-  password          String?
-  role              Role      @default(USER)
-  verificationToken String?   // For email verification
-  resetToken        String?   // For password reset
-  resetTokenExpiry  DateTime? // For password reset expiry
-  accounts          Account[]
-  sessions          Session[]
-  blogs             Blog[]
-  bookings          Booking[]
-}
+model User {  
+  id                 String          @id @default(cuid())  
+  name               String?  
+  email              String          @unique  
+  password           String?  
+  role               String          @default("USER")
+  isVerified         Boolean         @default(false)  
+  emailVerified      DateTime?  
+  image              String?  
+  verificationCode   String?  
+  verificationExpires DateTime?  
+  createdAt          DateTime        @default(now())  
+  updatedAt          DateTime        @updatedAt  
+  accounts           Account[]  
+  sessions           Session[]  
+  blogs              Blog[]
+  bookings           Booking[]  
+}  
 
 enum Role {
   USER
@@ -96,7 +98,7 @@ model Package {
   imageUrl      String
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
-  bookings      Booking[]
+  Booking       Booking[]
 }
 
 model Itinerary {

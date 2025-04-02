@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import db from "@/lib/db"
-import { sendPasswordResetEmail } from "@/lib/email"
+import { sendPasswordResetEmail } from "@/lib/sendEmails"
 import crypto from "crypto"
 
 export async function POST(req: NextRequest) {

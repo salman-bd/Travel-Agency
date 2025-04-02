@@ -11,9 +11,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { destinationSchema, type DestinationFormValues } from "@/lib/validations/destination"
-import axiosClient from "@/lib/axios"
+import { destinationSchema, type DestinationFormValues } from "@/schemas/destination"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import axios from "axios"
+import { Loader2, Upload } from "lucide-react"
+import Image from "next/image"
+import { toast } from "sonner"
+
 
 interface DestinationFormProps {
   destination?: Destination
@@ -24,6 +28,7 @@ const categories = ["Adventure", "Beach", "City", "Culture", "Food", "Mountain",
 export default function DestinationForm({ destination }: DestinationFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [imageUploading, setImageUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const form = useForm<DestinationFormValues>({
@@ -46,17 +51,47 @@ export default function DestinationForm({ destination }: DestinationFormProps) {
     try {
       if (destination) {
         // Update existing destination
-        await axiosClient.put(`/api/destinations/${destination.id}`, data)
+        await axios.put(`/api/destinations/${destination.id}`, data)
       } else {
         // Create new destination
-        await axiosClient.post("/api/destinations", data)
+        await axios.post("/api/destinations", data)
       }
 
-      router.push("/admin/destinations")
+      router.push("/admin/dashboard/destinations")
       router.refresh()
     } catch (error: any) {
       setError(error.response?.data?.error || "Something went wrong. Please try again.")
       setIsLoading(false)
+    }
+  }
+
+  // Handle image upload
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const formData = new FormData()
+    formData.append("file", file)
+    try {
+      setImageUploading(true)
+      const response = await axios.post("/api/image-upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      if (!response.data.success) {
+        throw new Error(response.data.message || "Failed to add the image")
+      }
+      form.setValue("imageUrl", response.data.url)
+      toast.success("Success!", {
+        description: "Operation completed successfully.",
+      })
+    } catch (error) {
+      console.error("Error uploading image:", error)
+      toast.error("Error!", {
+        description: "Something went wrong uploading image.",
+      })    
+    } finally {
+      setImageUploading(false)
     }
   }
 
@@ -152,10 +187,46 @@ export default function DestinationForm({ destination }: DestinationFormProps) {
             name="imageUrl"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Image URL</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
+                <FormLabel>Destination Image</FormLabel>
+                <div className="space-y-4">
+                  {field.value && (
+                    <div className="relative w-60 h-48 rounded-md overflow-hidden border mx-auto">
+                      <Image
+                        src={`${field.value}`}
+                        width={300}
+                        height={300}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="flex items-center gap-4">
+                    <FormControl>
+                      <Input type="text" placeholder="Image URL" {...field} className="hidden"/>
+                    </FormControl>
+                    <div className="relative">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                      />
+                      <Button type="button" variant="outline">
+                        {imageUploading ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin text-teal-600"/>
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="mr-2 h-4 w-4" />
+                            Upload Image
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
                 <FormMessage />
               </FormItem>
             )}
