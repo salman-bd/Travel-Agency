@@ -1,9 +1,9 @@
 "use client"
 
 import type React from "react"
-
+import Image from "next/image"
 import Link from "next/link"
-import { Facebook, Instagram, X, Youtube, Lock } from "lucide-react"
+import { Facebook, Instagram, Twitter, Youtube, Lock, MapPin, Phone, Mail } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { addSubscriber } from "@/lib/actions"
 import { useState } from "react"
@@ -49,76 +49,91 @@ const Footer = () => {
   }
 
   return (
-    <footer className="bg-white pt-12">
-      <div className="container mx-auto px-4">
-        <div className="subscribe-section mb-12 rounded-lg bg-[url('/placeholder.svg?height=300&width=1200')] bg-cover bg-center py-12 text-center text-white">
-          <h3 className="mb-4 text-2xl font-bold">Subscribe to get special price</h3>
+    <footer>
+      {/* Subscribe Section */}
+      <div className="bg-[url('/bg/subscribe.png?height=400&width=1600')] bg-cover bg-center py-16 text-white">
+        <div className="container mx-auto px-4 text-center">
+          <h3 className="mb-4 text-4xl font-bold">Subcribe to get special price</h3>
+          <p className="mb-8 text-lg">
+            Don't wanna miss something? subscribe right now and get special promotion and monthly newsletter
+          </p>
           <form
             onSubmit={handleSubscribe}
-            className="mx-auto flex max-w-md flex-col items-center justify-center gap-2 sm:flex-row"
+            className="mx-auto flex max-w-md items-center justify-center overflow-hidden rounded-full bg-white"
           >
             <input
               type="email"
-              placeholder="Your email address"
+              placeholder="Type your email here"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-full border border-white bg-transparent px-4 py-2 text-white placeholder:text-white/70 focus:outline-none sm:flex-1"
+              className="flex-1 border-none bg-transparent px-6 py-3 text-gray-800 outline-none"
               required
             />
             <button
               type="submit"
-              className="rounded-full bg-white px-6 py-2 text-sm font-medium text-primary hover:bg-gray-100"
+              className="rounded-full bg-black px-8 py-3 font-medium text-white hover:bg-gray-800"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Subscribing..." : "Subscribe"}
             </button>
           </form>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 gap-8 pb-8 md:grid-cols-4">
+      {/* Main Footer */}
+      <div className="bg-white py-12">
+        <div className="container mx-auto grid grid-cols-1 gap-8 px-4 md:grid-cols-2 lg:grid-cols-4">
+          {/* Logo and Description */}
           <div>
-            <h4 className="mb-4 text-sm font-bold uppercase">Contact Information</h4>
-            <ul className="space-y-2 text-sm">
-              <li className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
-                <span>123 Travel Street, City</span>
+            <Link href="/" className="mb-4 inline-block">
+              <div className="flex items-center gap-2">
+                <div className="relative h-12 w-12 overflow-hidden rounded-full">
+                  <Image src="/placeholder.svg?height=48&width=48" alt="Rebel Rover Logo" width={48} height={48} />
+                </div>
+                <span className="text-2xl font-bold text-[#0a1e3c]">REBEL ROVER</span>
+              </div>
+            </Link>
+            <p className="mt-4 text-gray-600">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque pharetra condimentum.
+            </p>
+          </div>
+
+          {/* Contact Information */}
+          <div>
+            <h4 className="mb-6 text-xl font-bold">Contact Information</h4>
+            <ul className="space-y-4">
+              <li className="flex items-start gap-3">
+                <MapPin className="mt-1 h-5 w-5 text-gray-600" />
+                <span>732 Despard St, Atlanta</span>
               </li>
-              <li className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
-                <span>info@rebelrover.com</span>
+              <li className="flex items-center gap-3">
+                <Phone className="h-5 w-5 text-gray-600" />
+                <span>+97 888 8888</span>
               </li>
-              <li className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
-                <span>+1 (123) 456-7890</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
-                <span>Mon-Fri: 9am - 6pm</span>
+              <li className="flex items-center gap-3">
+                <Mail className="h-5 w-5 text-gray-600" />
+                <span>info@traveller.com</span>
               </li>
             </ul>
           </div>
 
+          {/* Quick Links */}
           <div>
-            <h4 className="mb-4 text-sm font-bold uppercase">Quick Link</h4>
-            <ul className="space-y-2 text-sm">
+            <h4 className="mb-6 text-xl font-bold">Quick Link</h4>
+            <ul className="space-y-3">
               <li>
                 <Link href="/" className="hover:text-primary">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="hover:text-primary">
+                <Link href="/about-us" className="hover:text-primary">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/destinations" className="hover:text-primary">
-                  Destinations
-                </Link>
-              </li>
-              <li>
-                <Link href="/travel-stories" className="hover:text-primary">
-                  Travel Stories
+                <Link href="/tours" className="hover:text-primary">
+                  Tours
                 </Link>
               </li>
               <li>
@@ -126,43 +141,9 @@ const Footer = () => {
                   Contact
                 </Link>
               </li>
-            </ul>
-          </div>
 
-          <div>
-            <h4 className="mb-4 text-sm font-bold uppercase">Follow Us</h4>
-            <div className="flex gap-4">
-              <Link
-                href="#"
-                className="rounded-full border border-gray-200 p-2 hover:border-primary hover:text-primary"
-              >
-                <Facebook className="h-4 w-4" />
-              </Link>
-              <Link
-                href="#"
-                className="rounded-full border border-gray-200 p-2 hover:border-primary hover:text-primary"
-              >
-                <X className="h-4 w-4" />
-              </Link>
-              <Link
-                href="#"
-                className="rounded-full border border-gray-200 p-2 hover:border-primary hover:text-primary"
-              >
-                <Instagram className="h-4 w-4" />
-              </Link>
-              <Link
-                href="#"
-                className="rounded-full border border-gray-200 p-2 hover:border-primary hover:text-primary"
-              >
-                <Youtube className="h-4 w-4" />
-              </Link>
-            </div>
-          </div>
-
-          <div>
-            <h4 className="mb-4 text-sm font-bold uppercase">Admin</h4>
-            <ul className="space-y-2 text-sm">
-              {session?.user.role === "ADMIN" ? (
+              {/* Admin Section - Keep this from the original */}
+              {session?.user.role === "ADMIN" && (
                 <>
                   <li>
                     <Link href="/admin" className="flex items-center gap-2 hover:text-primary">
@@ -191,7 +172,8 @@ const Footer = () => {
                     </Link>
                   </li>
                 </>
-              ) : (
+              )}
+              {!session?.user.role && (
                 <li>
                   <Link href="/admin" className="flex items-center gap-2 hover:text-primary">
                     <Lock className="h-3 w-3" />
@@ -201,10 +183,48 @@ const Footer = () => {
               )}
             </ul>
           </div>
-        </div>
 
-        <div className="border-t border-gray-200 py-4 text-center text-xs text-gray-500">
-          <p>Copyright © {new Date().getFullYear()} Rebel Rover. All rights reserved. Designed by Rebel Rover Team</p>
+          {/* Follow Us */}
+          <div>
+            <h4 className="mb-6 text-xl font-bold">Follow Us</h4>
+            <div className="flex gap-4">
+              <Link
+                href="#"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 text-gray-600 transition-colors hover:border-primary hover:bg-primary hover:text-white"
+                aria-label="Facebook"
+              >
+                <Facebook className="h-5 w-5" />
+              </Link>
+              <Link
+                href="#"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 text-gray-600 transition-colors hover:border-primary hover:bg-primary hover:text-white"
+                aria-label="Twitter"
+              >
+                <Twitter className="h-5 w-5" />
+              </Link>
+              <Link
+                href="#"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 text-gray-600 transition-colors hover:border-primary hover:bg-primary hover:text-white"
+                aria-label="YouTube"
+              >
+                <Youtube className="h-5 w-5" />
+              </Link>
+              <Link
+                href="#"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 text-gray-600 transition-colors hover:border-primary hover:bg-primary hover:text-white"
+                aria-label="Instagram"
+              >
+                <Instagram className="h-5 w-5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Copyright */}
+      <div className="bg-black py-4 text-center text-white">
+        <div className="container mx-auto px-4">
+          <p>Copyright © All rights reserved (Website Developed & Managed by CREATIVECHROMA)</p>
         </div>
       </div>
     </footer>

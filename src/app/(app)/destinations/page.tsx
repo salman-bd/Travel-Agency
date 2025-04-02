@@ -66,7 +66,7 @@ export default async function DestinationsPage() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Hero Section */}
-      <section className="relative h-[500px] w-full bg-[url('/placeholder.svg?height=500&width=1200')] bg-cover bg-center">
+      <section className="relative h-[500px] w-full bg-[url('/bg/travel-concept.jpg?height=500&width=1200')] bg-cover bg-center">
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center px-4 text-center text-white">
           <h1 className="mb-2 text-4xl font-bold md:text-5xl">Great Places</h1>
@@ -75,94 +75,57 @@ export default async function DestinationsPage() {
       </section>
 
       {/* Popular Destinations */}
-      <section className="py-16">
+      <section className="py-16 md:py-32">
         <div className="container mx-auto px-4">
-          <h2 className="mb-2 text-2xl font-bold">Popular Destination</h2>
-          <p className="mb-8 text-gray-600">Explore our most sought-after travel destinations</p>
-
-          <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-            {destinations.slice(0, 3).map((destination) => (
-              <div
-                key={destination.id}
-                className="group overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <Image
-                    src={destination.image || "/placeholder.svg"}
-                    alt={destination.name}
-                    width={400}
-                    height={300}
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 to-transparent p-4 text-white">
-                    <h3 className="text-lg font-semibold">{destination.name}</h3>
-                    <p className="text-sm">{destination.country}</p>
-                  </div>
-                </div>
-                <div className="p-4">
-                  <div className="mb-2 flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="h-4 w-4 fill-secondary text-secondary" />
-                        ))}
-                      </div>
-                      <span className="text-xs text-gray-500">{destination.rating}</span>
-                    </div>
-                    <span className="text-sm font-semibold text-primary">{destination.price}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="rounded-full bg-gray-100 px-2 py-1 text-xs">{destination.category}</span>
-                    <Link
-                      href={`/destinations/${destination.id}`}
-                      className="flex items-center text-xs font-medium text-primary hover:underline"
-                    >
-                      View Details <ChevronRight className="ml-1 h-3 w-3" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="mb-8 flex flex-wrap items-center justify-between">
+            <div>
+              <h2 className="text-4xl font-bold">Popular Destination</h2>
+              <p className="mt-2 text-gray-600">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+                dolore magna
+              </p>
+            </div>
+            <Link
+              href="/destinations"
+              className="mt-4 rounded-full bg-black px-6 py-3 text-white hover:bg-black/90 md:mt-0"
+            >
+              Discover more
+            </Link>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-            {destinations.slice(3, 6).map((destination) => (
-              <div
-                key={destination.id}
-                className="group overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md"
-              >
-                <div className="relative h-48 overflow-hidden">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {destinations.map((destination) => (
+              <div key={destination.id} className="overflow-hidden rounded-lg bg-white shadow">
+                <div className="relative h-64 overflow-hidden">
                   <Image
                     src={destination.image || "/placeholder.svg"}
                     alt={destination.name}
-                    width={400}
-                    height={300}
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    width={600}
+                    height={400}
+                    className="h-full w-full object-cover"
                   />
-                  <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 to-transparent p-4 text-white">
-                    <h3 className="text-lg font-semibold">{destination.name}</h3>
-                    <p className="text-sm">{destination.country}</p>
-                  </div>
                 </div>
-                <div className="p-4">
-                  <div className="mb-2 flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="h-4 w-4 fill-secondary text-secondary" />
-                        ))}
-                      </div>
-                      <span className="text-xs text-gray-500">{destination.rating}</span>
-                    </div>
-                    <span className="text-sm font-semibold text-primary">{destination.price}</span>
+
+                <div className="p-6">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="text-xl font-bold">{destination.name}</h3>
+                    <span className="font-medium">{destination.price}</span>
                   </div>
+
+                  <p className="mb-4 text-gray-600">{destination.description}</p>
+
                   <div className="flex items-center justify-between">
-                    <span className="rounded-full bg-gray-100 px-2 py-1 text-xs">{destination.category}</span>
+                    <div className="flex">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                      ))}
+                    </div>
+
                     <Link
                       href={`/destinations/${destination.id}`}
-                      className="flex items-center text-xs font-medium text-primary hover:underline"
+                      className="rounded-full bg-black px-6 py-2 text-sm font-medium text-white hover:bg-black/90"
                     >
-                      View Details <ChevronRight className="ml-1 h-3 w-3" />
+                      Booking now
                     </Link>
                   </div>
                 </div>
@@ -173,13 +136,13 @@ export default async function DestinationsPage() {
       </section>
 
       {/* Featured Destination */}
-      <section className="bg-gray-100 py-16">
+      <section className="bg-gray-100 py-16 md:py-32">
         <div className="container mx-auto px-4">
           <div className="relative overflow-hidden rounded-lg bg-white shadow-md">
             <div className="grid grid-cols-1 md:grid-cols-2">
               <div className="h-64 md:h-auto">
                 <Image
-                  src="/placeholder.svg?height=500&width=600"
+                  src="/bg/travel-concept2.png?height=500&width=600"
                   alt="Featured destination"
                   width={600}
                   height={500}
@@ -205,63 +168,86 @@ export default async function DestinationsPage() {
       </section>
 
       {/* Tips & Articles */}
-      <section className="py-16">
+      <section className="py-16 md:py-32">
         <div className="container mx-auto px-4">
-          <h2 className="mb-2 text-2xl font-bold">Tips & Article</h2>
-          <p className="mb-8 text-gray-600">Get inspired with our travel guides and tips</p>
-
-          <div className="mb-8">
-            <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-              <div className="grid grid-cols-1 md:grid-cols-2">
-                <div className="order-2 p-6 md:order-1">
-                  <span className="mb-2 inline-block rounded-full bg-gray-100 px-3 py-1 text-xs">Tips / Travel</span>
-                  <h3 className="mb-2 text-xl font-bold">5 Popular Travel Destinations on Sale in 2023</h3>
-                  <p className="mb-4 text-gray-600">
-                    Discover amazing deals on these top destinations that you can visit without breaking the bank.
-                  </p>
-                  <Link
-                    href="/travel-stories/popular-destinations-2023"
-                    className="inline-flex items-center text-sm font-medium text-primary hover:underline"
-                  >
-                    Read More <ChevronRight className="ml-1 h-4 w-4" />
-                  </Link>
-                </div>
-                <div className="order-1 h-64 md:order-2">
-                  <Image
-                    src="/placeholder.svg?height=400&width=600"
-                    alt="Travel tips"
-                    width={600}
-                    height={400}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-              </div>
+          <div className="mb-8 flex flex-wrap items-center justify-between">
+            <div>
+              <h2 className="text-4xl font-bold">Tips & Article</h2>
+              <p className="mt-2 text-gray-600">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+                dolore magna
+              </p>
             </div>
+            <Link href="/blog" className="mt-4 rounded-full bg-black px-6 py-3 text-white hover:bg-black/90 md:mt-0">
+              View more
+            </Link>
           </div>
 
-          <div>
-            <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-              <div className="grid grid-cols-1 md:grid-cols-2">
-                <div className="h-64">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+            {/* Left column with two articles */}
+            <div className="space-y-6 lg:col-span-2">
+              <div className="rounded-lg bg-white p-6 shadow">
+                <div className="mb-2">
+                  <span className="text-sm font-medium">Perfect | Tips</span>
+                </div>
+                <h3 className="mb-2 text-2xl font-bold">9 Popular Travel Destintion on Sale in 2022</h3>
+                <div className="mb-4 h-0.5 w-8 bg-black"></div>
+                <p className="mb-4 text-gray-600">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+                  dolore magna
+                </p>
+                <Link
+                  href="/blog/popular-destinations-2022"
+                  className="inline-block rounded-full bg-black px-6 py-2 text-white hover:bg-black/90"
+                >
+                  Read More
+                </Link>
+              </div>
+
+              <div className="rounded-lg bg-white p-6 shadow">
+                <div className="mb-2">
+                  <span className="text-sm font-medium">Tips | Travel</span>
+                </div>
+                <h3 className="mb-2 text-2xl font-bold">How Are We Going to Travel in 2022</h3>
+                <div className="mb-4 h-0.5 w-8 bg-black"></div>
+                <p className="mb-4 text-gray-600">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+                  dolore magna
+                </p>
+                <Link
+                  href="/blog/travel-in-2022"
+                  className="inline-block rounded-full bg-black px-6 py-2 text-white hover:bg-black/90"
+                >
+                  Read More
+                </Link>
+              </div>
+            </div>
+
+            {/* Right column with featured article */}
+            <div className="lg:col-span-3">
+              <div className="h-full overflow-hidden rounded-lg bg-white shadow">
+                <div className="relative h-96">
                   <Image
-                    src="/placeholder.svg?height=400&width=600"
-                    alt="Travel tips"
-                    width={600}
-                    height={400}
-                    className="h-full w-full object-cover"
+                    src="/bg/travel-concept4.jpg?height=600&width=800"
+                    alt="traveling"
+                    fill
+                    className="object-cover"
                   />
                 </div>
                 <div className="p-6">
-                  <span className="mb-2 inline-block rounded-full bg-gray-100 px-3 py-1 text-xs">Tips / Travel</span>
-                  <h3 className="mb-2 text-xl font-bold">How are you Going to Travel in 2023?</h3>
+                  <div className="mb-2">
+                    <span className="text-sm font-medium">Stories | Tips</span>
+                  </div>
+                  <h3 className="mb-2 text-3xl font-bold">Travel Stories For Now and the Future</h3>
                   <p className="mb-4 text-gray-600">
-                    Explore the latest travel trends and discover new ways to experience the world in 2023.
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+                    dolore magna
                   </p>
                   <Link
-                    href="/travel-stories/travel-trends-2023"
-                    className="inline-flex items-center text-sm font-medium text-primary hover:underline"
+                    href="/blog/travel-stories"
+                    className="inline-block rounded-full bg-black px-6 py-2 text-white hover:bg-black/90"
                   >
-                    Read More <ChevronRight className="ml-1 h-4 w-4" />
+                    Read More
                   </Link>
                 </div>
               </div>
@@ -270,24 +256,77 @@ export default async function DestinationsPage() {
         </div>
       </section>
 
-      {/* Subscribe Section */}
-      <section className="py-16">
+      <section className="py-16 md:py-32">
         <div className="container mx-auto px-4">
-          <div className="rounded-lg bg-[url('/placeholder.svg?height=300&width=1200')] bg-cover bg-center py-12 text-center text-white">
-            <h3 className="mb-4 text-2xl font-bold">Subscribe to get special price</h3>
-            <div className="mx-auto flex max-w-md flex-col items-center justify-center gap-2 sm:flex-row">
-              <input
-                type="email"
-                placeholder="Your email address"
-                className="w-full rounded-full border border-white bg-transparent px-4 py-2 text-white placeholder:text-white/70 focus:outline-none sm:flex-1"
-              />
-              <button className="rounded-full bg-white px-6 py-2 text-sm font-medium text-primary hover:bg-gray-100">
-                Subscribe
+          <div className="mx-auto max-w-3xl">
+            <h2 className="mb-6 text-3xl font-bold">Leave a Reply</h2>
+            <p className="mb-8 text-gray-600">Your email address will not be published. Required fields are marked *</p>
+
+            <form className="space-y-6">
+              <div>
+                <label htmlFor="comment" className="mb-2 block text-lg">
+                  Comment
+                </label>
+                <textarea
+                  id="comment"
+                  rows={6}
+                  className="w-full rounded-md border border-gray-300 p-3 focus:border-gray-500 focus:outline-none"
+                ></textarea>
+              </div>
+
+              <div>
+                <label htmlFor="name" className="mb-2 block text-lg">
+                  Name *
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  required
+                  className="w-full rounded-md border border-gray-300 p-3 focus:border-gray-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="email" className="mb-2 block text-lg">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  required
+                  className="w-full rounded-md border border-gray-300 p-3 focus:border-gray-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="website" className="mb-2 block text-lg">
+                  Website
+                </label>
+                <input
+                  type="url"
+                  id="website"
+                  className="w-full rounded-md border border-gray-300 p-3 focus:border-gray-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input type="checkbox" id="save-info" className="h-5 w-5 rounded border-gray-300" />
+                <label htmlFor="save-info" className="text-gray-700">
+                  Save my name, email, and website in this browser for the next time I comment.
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                className="rounded-full bg-black px-8 py-4 text-lg font-medium text-white hover:bg-black/90"
+              >
+                Post Comment
               </button>
-            </div>
+            </form>
           </div>
         </div>
       </section>
+
     </div>
   )
 }
