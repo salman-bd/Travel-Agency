@@ -9,11 +9,8 @@ interface BlogEditPageProps {
 }
 
 export default async function BlogEditPage({ params }: BlogEditPageProps) {
-  const blog = await db.blog.findUnique({
-    where: {
-      id: params.id,
-    },
-  })
+  const { id } = await params
+  const blog = await db.blog.findUnique({ where: { id }, })
 
   if (!blog) {
     notFound()

@@ -9,7 +9,7 @@ export const WelcomeEmail = ({ name }: WelcomeEmailProps) => {
   return (
     <Html>
       <Head />
-      <Preview>Welcome to Rebel Rover - Your adventure begins now!</Preview>
+      <Preview>Welcome to Traveller World - Your adventure begins now!</Preview>
       <Tailwind>
         <Body className="bg-gray-100 font-sans">
           <Container className="mx-auto max-w-[600px] rounded bg-white p-8">
@@ -20,7 +20,7 @@ export const WelcomeEmail = ({ name }: WelcomeEmailProps) => {
               height="50"
               className="mx-auto mb-4"
             />
-            <Heading className="mb-4 text-center text-2xl font-bold text-primary">Welcome to Rebel Rover!</Heading>
+            <Heading className="mb-4 text-center text-2xl font-bold text-primary">Welcome to Traveller World!</Heading>
             <Text className="mb-4 text-gray-700">Hello {name},</Text>
             <Text className="mb-4 text-gray-700">
               Congratulations and welcome to the Rebel Rover family! We're thrilled to have you join our community of
@@ -51,7 +51,7 @@ export const WelcomeEmail = ({ name }: WelcomeEmailProps) => {
             <Text className="text-gray-700">
               Happy travels!
               <br />
-              The Rebel Rover Team
+              The Traveller World Team
             </Text>
             <Hr className="my-6 border-gray-300" />
             <Text className="text-center text-xs text-gray-500">

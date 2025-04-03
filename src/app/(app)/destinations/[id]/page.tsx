@@ -13,9 +13,10 @@ interface DestinationPageProps {
 }
 
 export default async function DestinationPage({ params }: DestinationPageProps) {
+  const { id } = await params
   const destination = await db.destination.findUnique({
     where: {
-      id: params.id,
+      id,
     },
     include: {
       packages: true,

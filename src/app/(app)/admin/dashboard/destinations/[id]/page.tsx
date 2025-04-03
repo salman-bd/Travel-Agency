@@ -9,11 +9,8 @@ interface DestinationEditPageProps {
 }
 
 export default async function DestinationEditPage({ params }: DestinationEditPageProps) {
-  const destination = await db.destination.findUnique({
-    where: {
-      id: params.id,
-    },
-  })
+  const { id } = await params
+  const destination = await db.destination.findUnique({ where: { id, } })
 
   if (!destination) {
     notFound()

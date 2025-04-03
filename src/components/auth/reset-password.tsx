@@ -81,9 +81,9 @@ export default function ResetPasswordPage() {
             <Link href="/" className="inline-block">
               <div className="flex items-center gap-2">
                 <div className="relative h-10 w-10 overflow-hidden rounded-full">
-                  <Image src="/placeholder.svg?height=40&width=40" alt="Rebel Rover Logo" width={40} height={40} />
+                  <Image src="/logo/traveller-world.png?height=40&width=40" alt="Treveller World Logo" width={40} height={40} />
                 </div>
-                <span className="text-xl font-bold text-[#1e3a8a]">REBEL ROVER</span>
+                <span className="text-xl font-bold text-[#1e3a8a]">TRAVELLER WORLD</span>n>
               </div>
             </Link>
           </div>

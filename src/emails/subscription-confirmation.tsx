@@ -9,7 +9,7 @@ export const SubscriptionConfirmationEmail = ({ email }: SubscriptionConfirmatio
   return (
     <Html>
       <Head />
-      <Preview>Welcome to the Rebel Rover Newsletter</Preview>
+      <Preview>Welcome to the Traveller World Newsletter</Preview>
       <Tailwind>
         <Body className="bg-gray-100 font-sans">
           <Container className="mx-auto max-w-[600px] rounded bg-white p-8">
@@ -57,11 +57,11 @@ export const SubscriptionConfirmationEmail = ({ email }: SubscriptionConfirmatio
             <Text className="text-gray-700">
               Happy travels!
               <br />
-              The Rebel Rover Team
+              The Traveller World Team
             </Text>
             <Hr className="my-6 border-gray-300" />
             <Text className="text-center text-xs text-gray-500">
-              © {new Date().getFullYear()} Rebel Rover. All rights reserved.
+              © {new Date().getFullYear()} Traveller World. All rights reserved.
               <br />
               123 Travel Street, City, Country
             </Text>

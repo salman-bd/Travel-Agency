@@ -10,20 +10,26 @@ export default async function AdminLayout({
   children: React.ReactNode
 }) {
   const user = await getCurrentUser()
-  // console.log('User data in the dashboard: ', user);
-  
+
   if (!user || user.role !== "ADMIN") {
     redirect("/admin")
   }
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row">
-      <div className="hidden w-64 md:block">
-        <AdminSidebar />
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Fixed sidebar container */}
+      <div className="hidden md:block md:w-64 md:flex-shrink-0">
+        <div className="fixed h-screen w-64 z-30">
+          <AdminSidebar />
+        </div>
       </div>
+
+      {/* Main content area */}
       <div className="flex flex-1 flex-col">
-        <AdminHeader user={user} />
-        <main className="flex-1 p-4 sm:p-6">{children}</main>
+        <AdminHeader />
+        <main className="flex-1 p-4 md:p-6">
+          <div className="mx-auto w-full max-w-7xl">{children}</div>
+        </main>
       </div>
     </div>
   )

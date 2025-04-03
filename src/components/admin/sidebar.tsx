@@ -3,17 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import {
-  LayoutDashboard,
-  Map,
-  Package,
-  CalendarClock,
-  Users,
-  MessageSquare,
-  FileText,
-  Settings,
-  LogOut,
-} from "lucide-react"
+import { LayoutDashboard, Map, Package, CalendarClock, MessageSquare, FileText, LogOut, Compass } from "lucide-react"
 import { signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 
@@ -39,11 +29,6 @@ const sidebarItems = [
     icon: <CalendarClock className="h-5 w-5" />,
   },
   {
-    title: "Users",
-    href: "/admin/dashboard/users",
-    icon: <Users className="h-5 w-5" />,
-  },
-  {
     title: "Contacts",
     href: "/admin/dashboard/contacts",
     icon: <MessageSquare className="h-5 w-5" />,
@@ -53,48 +38,47 @@ const sidebarItems = [
     href: "/admin/dashboard/blogs",
     icon: <FileText className="h-5 w-5" />,
   },
-  {
-    title: "Settings",
-    href: "/admin/dashboard/settings",
-    icon: <Settings className="h-5 w-5" />,
-  },
 ]
 
 export default function AdminSidebar() {
   const pathname = usePathname()
 
   return (
-    <div className="flex h-full flex-col border-r bg-white">
-      <div className="flex h-14 items-center border-b px-4">
-        <Link href="/admin" className="flex items-center gap-2 font-semibold">
-          <span className="h-2 w-2 rounded-full bg-primary"></span>
-          <span>REBEL ROVER ADMIN</span>
+    <div className="flex h-full flex-col bg-white border-r shadow-sm">
+      <div className="flex h-16 items-center px-6 border-b">
+        <Link href="/admin" className="flex items-center gap-2 font-bold">
+          <div className="relative h-8 w-8 overflow-hidden rounded-full bg-[#069aba]">
+            <Compass className="h-5 w-5 absolute inset-0 m-auto text-white" />
+          </div>
+          <span className="text-lg text-[#069aba]">REBEL ROVER</span>
         </Link>
       </div>
-      <div className="flex-1 overflow-auto py-2">
-        <nav className="grid items-start px-2 text-sm font-medium">
+      <div className="flex-1 overflow-auto py-6 px-4">
+        <nav className="space-y-1">
           {sidebarItems.map((item, index) => (
             <Link
               key={index}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary",
-                pathname === item.href ? "bg-primary/10 text-primary" : "text-gray-500 hover:bg-gray-100",
+                "flex items-center gap-3 rounded-lg px-4 py-3 transition-all",
+                pathname === item.href ? "bg-[#069aba] text-white shadow-md" : "text-gray-700 hover:bg-[#069aba]/10",
               )}
             >
               {item.icon}
-              {item.title}
+              <span>{item.title}</span>
             </Link>
           ))}
-          <Button
-            variant="ghost"
-            className="mt-4 flex items-center gap-3 justify-start px-3 py-2 text-gray-500 hover:bg-gray-100 hover:text-primary"
-            onClick={() => signOut({ callbackUrl: "/" })}
-          >
-            <LogOut className="h-5 w-5" />
-            Logout
-          </Button>
         </nav>
+      </div>
+      <div className="p-4 border-t">
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-3 text-gray-700 hover:bg-[#069aba]/10 hover:text-[#069aba]"
+          onClick={() => signOut({ callbackUrl: "/" })}
+        >
+          <LogOut className="h-5 w-5" />
+          <span>Sign Out</span>
+        </Button>
       </div>
     </div>
   )

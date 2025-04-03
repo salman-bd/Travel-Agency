@@ -30,12 +30,12 @@ const Navbar = () => {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-sm ">
+    <header className="sticky top-0 z-1000 w-full bg-white/80 backdrop-blur-sm ">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2">
           <div className="flex items-center">
             <span className="h-2 w-2 rounded-full bg-primary"></span>
-            <span className="ml-2 text-xl font-bold">REBEL ROVER</span>
+            <span className="ml-2 text-xl font-bold">TRAVELLER WORLD</span>
           </div>
         </Link>
         <nav className="hidden md:flex md:items-center md:gap-6">

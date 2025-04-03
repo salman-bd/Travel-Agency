@@ -1,10 +1,10 @@
 
 import { getPackages } from "@/lib/actions";  
-import AdminPackages from "./admin-packages";
+import AdminPackages from "../../../../../components/admin/admin-packages";
 
 export default async function Page() {  
   const data = await getPackages()
-  console.log('Packages :', data);
+  // console.log('Packages :', data);
   
 
   return (  

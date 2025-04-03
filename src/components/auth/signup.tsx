@@ -13,7 +13,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Facebook, X, Eye, EyeOff } from 'lucide-react'
 import { registerSchema, type RegisterFormValues } from "@/schemas/auth"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import axios from "axios"
+import { registerUser } from "@/lib/actions"
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -47,22 +47,24 @@ export default function SignUpPage() {
     setError(null)
 
     try {
-      const response = await axios.post("/api/auth/signup", {
+      const signupData ={
         name: data.name,
         email: data.email,
         password: data.password,
         role: 'USER'
-      })
-
-      // Redirect to verification page
-      router.push(`/verify-email?email=${encodeURIComponent(data.email)}`)
+      }
+      const result = await registerUser(signupData)
+      if (!result.success) {
+        setError(result?.message || "Something went wrong. Please try again.")
+      } else if (result.success) {
+        router.push(`/verify-email?email=${encodeURIComponent(data.email)}`)
+      }
     } catch (error: any) {
       setError(error.response?.data?.error || "Something went wrong. Please try again.")
     } finally {
       setIsLoading(false)
     }
   }
-
   if (status === "loading") {
     return (
       <div className="flex min-h-screen flex-col bg-gradient-to-b from-[#1e3a8a] to-[#0f172a]">
@@ -86,9 +88,9 @@ export default function SignUpPage() {
             <Link href="/" className="inline-block">
               <div className="flex items-center gap-2">
                 <div className="relative h-10 w-10 overflow-hidden rounded-full">
-                  <Image src="/placeholder.svg?height=40&width=40" alt="Rebel Rover Logo" width={40} height={40} />
+                  <Image src="/logo/traveller-world.png?height=40&width=40" alt="Treveller World Logo" width={40} height={40} />
                 </div>
-                <span className="text-xl font-bold text-[#1e3a8a]">REBEL ROVER</span>
+                <span className="text-xl font-bold text-[#1e3a8a]">TRAVELLER WORLD</span>
               </div>
             </Link>
           </div>

@@ -91,7 +91,7 @@ export default function BookingForm({ packageId, userId, packagePrice }: Booking
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
+                    <PopoverContent className="w-auto p-0 bg-white">
                       <Calendar
                         mode="single"
                         selected={field.value}

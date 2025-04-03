@@ -49,11 +49,11 @@ export const ContactResponseEmail = ({ customerName, message }: ContactResponseE
             <Text className="text-gray-700">
               Best regards,
               <br />
-              The Rebel Rover Team
+              The Traveller World Team
             </Text>
             <Hr className="my-6 border-gray-300" />
             <Text className="text-center text-xs text-gray-500">
-              © {new Date().getFullYear()} Rebel Rover. All rights reserved.
+              © {new Date().getFullYear()} Traveller World. All rights reserved.
               <br />
               123 Travel Street, City, Country
             </Text>

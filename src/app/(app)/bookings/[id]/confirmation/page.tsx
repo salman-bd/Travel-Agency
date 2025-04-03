@@ -15,10 +15,11 @@ interface BookingConfirmationPageProps {
 
 export default async function BookingConfirmationPage({ params }: BookingConfirmationPageProps) {
   const user = await requireAuth()
+  const { id } = await params
 
   const booking = await db.booking.findUnique({
     where: {
-      id: params.id,
+      id,
       userId: user.id,
     },
     include: {

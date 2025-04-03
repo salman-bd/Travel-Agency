@@ -11,7 +11,7 @@ import { Toaster } from "@/components/ui/sonner"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Rebel Rover | Travel Website",
+  title: "Traveller World | Travel Website",
   description: "Explore new worlds with exotic natural scenery",
 }
 

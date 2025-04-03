@@ -5,7 +5,7 @@ export default function AboutPage() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Hero Section */}
-      <section className="relative h-[500px] w-full bg-[url('/bg/mountain.png?height=500&width=1200')] bg-cover bg-center">
+      <section className="relative h-[500px] w-full bg-[url('/bg/mountain.jpg?height=500&width=1200')] bg-cover bg-center">
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center px-4 text-center text-white">
           <h1 className="mb-2 text-4xl font-bold md:text-5xl">About Us</h1>
@@ -203,7 +203,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="relative aspect-[4/4.5] overflow-hidden rounded-lg">
               <Image
-                src="/gallery/bali-beach.jpg?height=600&width=800"
+                src="/gallery/bali-island.jpg?height=600&width=800"
                 alt="Bali"
                 fill
                 className="object-cover transition-transform duration-500 hover:scale-110"
@@ -225,7 +225,7 @@ export default function AboutPage() {
               <div className="grid grid-cols-2 gap-6">
                 <div className="relative aspect-square overflow-hidden rounded-lg">
                   <Image
-                    src="/gallery/paris.png?height=400&width=400"
+                    src="/gallery/paris.jpg?height=400&width=400"
                     alt="Paris"
                     fill
                     className="object-cover transition-transform duration-500 hover:scale-110"
@@ -235,7 +235,7 @@ export default function AboutPage() {
 
                 <div className="relative aspect-square overflow-hidden rounded-lg">
                   <Image
-                    src="/gallery/italy.png?height=400&width=400"
+                    src="/gallery/italy2.jpg?height=400&width=400"
                     alt="Italy"
                     fill
                     className="object-cover transition-transform duration-500 hover:scale-110"

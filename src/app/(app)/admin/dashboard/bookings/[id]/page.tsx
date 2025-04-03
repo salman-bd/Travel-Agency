@@ -14,9 +14,10 @@ interface BookingDetailPageProps {
 }
 
 export default async function BookingDetailPage({ params }: BookingDetailPageProps) {
+  const { id } = await params
   const booking = await db.booking.findUnique({
     where: {
-      id: params.id,
+      id,
     },
     include: {
       user: true,
@@ -37,6 +38,11 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
     notFound()
   }
 
+  // Create server actions for each status update
+  const confirmBooking = updateBookingStatus.bind(null, booking.id, "CONFIRMED")
+  const cancelBooking = updateBookingStatus.bind(null, booking.id, "CANCELLED")
+  const completeBooking = updateBookingStatus.bind(null, booking.id, "COMPLETED")
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -52,12 +58,12 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
         <div className="flex gap-2">
           {booking.status === "PENDING" && (
             <>
-              <form action={async () => await updateBookingStatus(booking.id, "CONFIRMED")}>
+              <form action={confirmBooking}>
                 <Button variant="outline" type="submit">
                   Confirm Booking
                 </Button>
               </form>
-              <form action={async () => await updateBookingStatus(booking.id, "CANCELLED")}>
+              <form action={cancelBooking}>
                 <Button variant="outline" type="submit" className="text-destructive">
                   Cancel Booking
                 </Button>
@@ -65,7 +71,7 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
             </>
           )}
           {booking.status === "CONFIRMED" && (
-            <form action={async () => await updateBookingStatus(booking.id, "COMPLETED")}>
+            <form action={completeBooking}>
               <Button variant="outline" type="submit">
                 Mark as Completed
               </Button>

@@ -10,8 +10,9 @@ import { ContactResponseEmail } from "@/emails/contact-response"
 import { SubscriptionConfirmationEmail } from "@/emails/subscription-confirmation"
 import { generateVerificationCode } from "./utils"
 import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail } from "./sendEmails"
-import { BlogPost } from "@/types/blog"
-import { BlogFormValues } from "@/schemas/blog"
+import type { BlogFormValues } from "@/schemas/blog"
+import { getCurrentUser } from "./auth"
+import type { DestinationFormValues } from "@/schemas/destination"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -22,50 +23,153 @@ interface ResgistrationData {
   role: string
 }
 
+// Notification types
+type NotificationType = "BOOKING" | "CONTACT" | "BLOG" | "SYSTEM"
+
+interface NotificationData {
+  userId: string
+  type: NotificationType
+  message: string
+  link?: string
+}
+
+// Notification actions
+export async function getNotifications() {
+  try {
+    const user = await getCurrentUser()
+
+    if (!user || user.role !== "ADMIN") {
+      return []
+    }
+
+    // Fetch notifications from database
+    const notifications = await db.notification.findMany({
+      where: {
+        userId: user.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 20,
+    })
+
+    return notifications
+  } catch (error) {
+    console.error("Error fetching notifications:", error)
+    return []
+  }
+}
+
+export async function markNotificationAsRead(id: string) {
+  try {
+    const user = await getCurrentUser()
+
+    if (!user || user.role !== "ADMIN") {
+      return { success: false }
+    }
+
+    await db.notification.update({
+      where: {
+        id,
+        userId: user.id,
+      },
+      data: {
+        read: true,
+      },
+    })
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error marking notification as read:", error)
+    return { success: false }
+  }
+}
+
+export async function markAllNotificationsAsRead() {
+  try {
+    const user = await getCurrentUser()
+
+    if (!user || user.role !== "ADMIN") {
+      return { success: false }
+    }
+
+    await db.notification.updateMany({
+      where: {
+        userId: user.id,
+        read: false,
+      },
+      data: {
+        read: true,
+      },
+    })
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error marking all notifications as read:", error)
+    return { success: false }
+  }
+}
+
+// Create notification helper function
+export async function createNotification(data: NotificationData) {
+  try {
+    await db.notification.create({
+      data: {
+        ...data,
+        read: false,
+      },
+    })
+    return { success: true }
+  } catch (error) {
+    console.error("Error creating notification:", error)
+    return { success: false }
+  }
+}
+
 // User actions
 export async function registerUser(data: ResgistrationData) {
   const { name, email, password, role } = data
 
-    // Check if user already exists
-    const existingUser = await db.user.findUnique({ where: { email }, })
-    const verificationCode = generateVerificationCode()
+  // Check if user already exists
+  const existingUser = await db.user.findUnique({ where: { email } })
+  const verificationCode = generateVerificationCode()
 
-    if (existingUser) {
-      if (existingUser.isVerified) {  
-        return { success: false, message: "User already exists with this email" } 
-      }       
-      const hashedPassword = await bcryptjs.hash(password, 10);  
-      const verificationExpires = new Date(Date.now() + 3600000); // 1 hour from now  
-      await db.user.update({  
-          where: {  
-              email: email,  
-          },  
-          data: {  
-              password: hashedPassword,  
-              verificationCode,
-              verificationExpires, 
-              role,
-          },  
-      });
-    } else {
-      const hashedPassword = await bcryptjs.hash(password, 10)
-      const verificationExpires = new Date(Date.now() + 3600000) // 1 hour from now
-      // Create user
-      await db.user.create({
-        data: {
-          name,
-          email,
-          password: hashedPassword,
-          verificationCode,
-          verificationExpires,
-          role,
-        },
-      })
+  if (existingUser) {
+    if (existingUser.isVerified) {
+      return { success: false, message: "User already exists with this email" }
     }
-    // Send verification email
-    await sendVerificationEmail(email, name, verificationCode)
+    const hashedPassword = await bcryptjs.hash(password, 10)
+    const verificationExpires = new Date(Date.now() + 3600000) // 1 hour from now
+    await db.user.update({
+      where: {
+        email: email,
+      },
+      data: {
+        password: hashedPassword,
+        verificationCode,
+        verificationExpires,
+        role,
+      },
+    })
+  } else {
+    const hashedPassword = await bcryptjs.hash(password, 10)
+    const verificationExpires = new Date(Date.now() + 3600000) // 1 hour from now
+    // Create user
+    await db.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        verificationCode,
+        verificationExpires,
+        role,
+      },
+    })
+  }
+  // Send verification email
+  await sendVerificationEmail(email, name, verificationCode)
 
-  return { success: true, message: "Account updated successfully!"}
+  return { success: true, message: "Account updated successfully!" }
 }
 
 export async function verifyEmail(formData: FormData) {
@@ -184,7 +288,7 @@ export async function resetPassword(formData: FormData) {
   }
 
   // Hash the new password
-  const hashedPassword = await hash(password, 10)
+  const hashedPassword = await bcryptjs.hash(password, 10)
 
   // Update user with new password and clear reset token
   await db.user.update({
@@ -201,121 +305,195 @@ export async function resetPassword(formData: FormData) {
 
 // Blog actions
 export async function createBlog(data: BlogFormValues) {
-  const { title, content, excerpt, imageUrl, category, published, } = data
+  try {
+    const { title, content, excerpt, imageUrl, category, published } = data
+    const user = await getCurrentUser()
 
-  // Create slug from title
-  const slug = title
-    .toLowerCase()
-    .replace(/[^\w\s]/gi, "")
-    .replace(/\s+/g, "-")
+    if (!user) {
+      return { success: false, message: "Unauthorized" }
+    }
 
-  await db.blog.create({
-    data: {
-      title,
-      slug,
-      content,
-      excerpt,
-      imageUrl,
-      category,
-      authorId,
-      published,
-    },
-  })
+    // Create slug from title
+    const slug = title
+      .toLowerCase()
+      .replace(/[^\w\s]/gi, "")
+      .replace(/\s+/g, "-")
 
-  revalidatePath("/admin/blogs")
-  redirect("/admin/blogs")
+    const blog = await db.blog.create({
+      data: {
+        title,
+        slug,
+        content,
+        excerpt,
+        imageUrl,
+        category,
+        authorId: user.id,
+        published,
+      },
+    })
+
+    // Create notification for admin users
+    const admins = await db.user.findMany({
+      where: {
+        role: "ADMIN",
+      },
+    })
+
+    for (const admin of admins) {
+      await createNotification({
+        userId: admin.id,
+        type: "BLOG",
+        message: published ? `New blog published: ${title}` : `New blog draft created: ${title}`,
+        link: `/admin/dashboard/blogs/${blog.id}`,
+      })
+    }
+
+    revalidatePath("/admin/dashboard/blogs")
+    return { success: true, message: "Blog created successfully!" }
+  } catch (error) {
+    return { success: false, message: "Blog creation failed!" }
+  }
 }
 
-export async function updateBlog(formData: FormData) {
-  const id = formData.get("id") as string
-  const title = formData.get("title") as string
-  const content = formData.get("content") as string
-  const excerpt = formData.get("excerpt") as string
-  const imageUrl = formData.get("imageUrl") as string
-  const category = formData.get("category") as string
-  const published = formData.get("published") === "true"
+export async function updateBlog(id: string, data: BlogFormValues) {
+  try {
+    const { title, content, excerpt, imageUrl, category, published } = data
+    const user = await getCurrentUser()
 
-  await db.blog.update({
-    where: {
-      id,
-    },
-    data: {
-      title,
-      content,
-      excerpt,
-      imageUrl,
-      category,
-      published,
-    },
-  })
+    if (!user) {
+      return { success: false, message: "Unauthorized" }
+    }
 
-  revalidatePath("/admin/blogs")
-  redirect("/admin/blogs")
+    // Get the blog before update to check if published status changed
+    const previousBlog = await db.blog.findUnique({
+      where: { id },
+    })
+
+    const updatedBlog = await db.blog.update({
+      where: {
+        id,
+      },
+      data: {
+        title,
+        content,
+        excerpt,
+        imageUrl,
+        category,
+        published,
+      },
+    })
+
+    // Create notification if blog was published
+    if (!previousBlog?.published && published) {
+      const admins = await db.user.findMany({
+        where: {
+          role: "ADMIN",
+        },
+      })
+
+      for (const admin of admins) {
+        await createNotification({
+          userId: admin.id,
+          type: "BLOG",
+          message: `Blog published: ${title}`,
+          link: `/admin/dashboard/blogs/${id}`,
+        })
+      }
+    }
+
+    revalidatePath("/admin/dashboard/blogs")
+    return { success: true, message: "Blog updated successfully!" }
+  } catch (error) {
+    return { success: false, message: "Blog update failed!" }
+  }
 }
 
 export async function deleteBlog(id: string) {
-  await db.blog.delete({
-    where: {
-      id,
+  await db.blog.delete({ where: { id } })
+  revalidatePath("/admin/dashboard/blogs")
+}
+
+export async function getBlogs() {
+  const blogs = await db.blog.findMany({
+    include: {
+      author: {
+        select: {
+          name: true,
+        },
+      },
     },
   })
-
-  revalidatePath("/admin/blogs")
+  return blogs
 }
 
 // Destination actions
-export async function createDestination(formData: FormData) {
-  const name = formData.get("name") as string
-  const country = formData.get("country") as string
-  const description = formData.get("description") as string
-  const price = Number.parseFloat(formData.get("price") as string)
-  const category = formData.get("category") as string
-  const imageUrl = formData.get("imageUrl") as string
-  const featured = formData.get("featured") === "true"
+export async function createDestination(data: DestinationFormValues) {
+  try {
+    const { name, country, description, price, category, imageUrl, featured } = data
+    const user = await getCurrentUser()
 
-  await db.destination.create({
-    data: {
-      name,
-      country,
-      description,
-      price,
-      category,
-      imageUrl,
-      featured,
-    },
-  })
+    if (!user) {
+      return { success: false, message: "Unauthorized" }
+    }
 
-  revalidatePath("/admin/destinations")
-  redirect("/admin/destinations")
+    const destination = await db.destination.create({
+      data: {
+        name,
+        country,
+        description,
+        price,
+        category,
+        imageUrl,
+        featured,
+      },
+    })
+
+    // Create notification for admin users
+    const admins = await db.user.findMany({
+      where: {
+        role: "ADMIN",
+      },
+    })
+
+    for (const admin of admins) {
+      await createNotification({
+        userId: admin.id,
+        type: "SYSTEM",
+        message: `New destination added: ${name}, ${country}`,
+        link: `/admin/dashboard/destinations/${destination.id}`,
+      })
+    }
+
+    revalidatePath("/admin/dashboard/destinations")
+    return { success: true }
+  } catch (error) {
+    return { success: false }
+  }
 }
 
-export async function updateDestination(formData: FormData) {
-  const id = formData.get("id") as string
-  const name = formData.get("name") as string
-  const country = formData.get("country") as string
-  const description = formData.get("description") as string
-  const price = Number.parseFloat(formData.get("price") as string)
-  const category = formData.get("category") as string
-  const imageUrl = formData.get("imageUrl") as string
-  const featured = formData.get("featured") === "true"
+export async function updateDestination(id: string, data: DestinationFormValues) {
+  try {
+    const { name, country, description, price, category, imageUrl, featured } = data
+    await db.destination.update({
+      where: {
+        id,
+      },
+      data: {
+        name,
+        country,
+        description,
+        price,
+        category,
+        imageUrl,
+        featured,
+      },
+    })
 
-  await db.destination.update({
-    where: {
-      id,
-    },
-    data: {
-      name,
-      country,
-      description,
-      price,
-      category,
-      imageUrl,
-      featured,
-    },
-  })
-
-  revalidatePath("/admin/destinations")
-  redirect("/admin/destinations")
+    revalidatePath("/admin/dashboard/destinations")
+    return { success: true }
+  } catch (error) {
+    return { success: false }
+  }
 }
 
 export async function deleteDestination(id: string) {
@@ -331,12 +509,17 @@ export async function deleteDestination(id: string) {
 
 export async function getDestinations() {
   const destinations = await db.destination.findMany()
-  // console.log('Destinations: ', destinations);
   return destinations
 }
 
 // Package actions
 export async function createPackage(formData: FormData) {
+  const user = await getCurrentUser()
+
+  if (!user) {
+    return { success: false, message: "Unauthorized" }
+  }
+
   const title = formData.get("title") as string
   const description = formData.get("description") as string
   const price = Number.parseFloat(formData.get("price") as string)
@@ -362,12 +545,10 @@ export async function createPackage(formData: FormData) {
 
   // Create itinerary items
   const itineraryCount = Number.parseInt(formData.get("itineraryCount") as string)
-
   for (let i = 1; i <= itineraryCount; i++) {
     const day = i
     const itineraryTitle = formData.get(`itinerary-${i}-title`) as string
     const itineraryDescription = formData.get(`itinerary-${i}-description`) as string
-
     await db.itinerary.create({
       data: {
         day,
@@ -378,8 +559,24 @@ export async function createPackage(formData: FormData) {
     })
   }
 
+  // Create notification for admin users
+  const admins = await db.user.findMany({
+    where: {
+      role: "ADMIN",
+    },
+  })
+
+  for (const admin of admins) {
+    await createNotification({
+      userId: admin.id,
+      type: "SYSTEM",
+      message: `New package created: ${title}`,
+      link: `/admin/dashboard/packages/${newPackage.id}`,
+    })
+  }
+
   revalidatePath("/admin/dashboard/packages")
-  redirect("/admin/dashboard/packages")
+  return { success: true }
 }
 
 export async function updatePackage(formData: FormData) {
@@ -392,7 +589,6 @@ export async function updatePackage(formData: FormData) {
   const imageUrl = formData.get("imageUrl") as string
   const inclusions = (formData.get("inclusions") as string).split(",")
   const exclusions = (formData.get("exclusions") as string).split(",")
-
   // Update package
   await db.package.update({
     where: {
@@ -409,22 +605,18 @@ export async function updatePackage(formData: FormData) {
       exclusions,
     },
   })
-
   // Delete existing itinerary items
   await db.itinerary.deleteMany({
     where: {
       packageId: id,
     },
   })
-
   // Create new itinerary items
   const itineraryCount = Number.parseInt(formData.get("itineraryCount") as string)
-
   for (let i = 1; i <= itineraryCount; i++) {
     const day = i
     const itineraryTitle = formData.get(`itinerary-${i}-title`) as string
     const itineraryDescription = formData.get(`itinerary-${i}-description`) as string
-
     await db.itinerary.create({
       data: {
         day,
@@ -434,10 +626,8 @@ export async function updatePackage(formData: FormData) {
       },
     })
   }
-
   revalidatePath("/admin/dashboard/packages")
-  redirect("/admin/dashboard/packages")
-  return { success: true, message: "Package updated successfully!"}
+  return { success: true, message: "Package updated successfully!" }
 }
 
 export async function deletePackage(id: string) {
@@ -450,30 +640,31 @@ export async function deletePackage(id: string) {
   revalidatePath("/admin/packages")
 }
 
-export async function getPackages() {  
-  const packages = await db.package.findMany();  
-  const processedPackages = await Promise.all(packages.map(async (pkg) => {  
-    const destination = await db.destination.findUnique({ where: { id: pkg.destinationId }});  
+export async function getPackages() {
+  const packages = await db.package.findMany()
+  const processedPackages = await Promise.all(
+    packages.map(async (pkg) => {
+      const destination = await db.destination.findUnique({ where: { id: pkg.destinationId } })
 
-    const packageData = {  
-      id: pkg.id,  
-      title: pkg.title,  
-      description: pkg.description,  
-      price: pkg.price,  
-      duration: pkg.duration,  
-      destinationId: pkg.destinationId,  
-      inclusions: pkg.inclusions,  
-      exclusions: pkg.exclusions,  
-      imageUrl: pkg.imageUrl,  
-      destination: destination // Including the resolved destination  
-    };  
-    return packageData;  
-  }));  
+      const packageData = {
+        id: pkg.id,
+        title: pkg.title,
+        description: pkg.description,
+        price: pkg.price,
+        duration: pkg.duration,
+        destinationId: pkg.destinationId,
+        inclusions: pkg.inclusions,
+        exclusions: pkg.exclusions,
+        imageUrl: pkg.imageUrl,
+        destination: destination, // Including the resolved destination
+      }
+      return packageData
+    }),
+  )
 
-  return processedPackages;  
-}  
+  return processedPackages
+}
 
-// Add to lib/actions.ts
 export async function getPackageById(id: string) {
   try {
     const pkg = await db.package.findUnique({
@@ -488,7 +679,7 @@ export async function getPackageById(id: string) {
         },
       },
     })
-    
+
     return pkg
   } catch (error) {
     console.error("Error fetching package:", error)
@@ -569,21 +760,97 @@ export async function createBooking(formData: FormData) {
     })
   }
 
+  // Create notification for admin users
+  const admins = await db.user.findMany({
+    where: {
+      role: "ADMIN",
+    },
+  })
+
+  for (const admin of admins) {
+    await createNotification({
+      userId: admin.id,
+      type: "BOOKING",
+      message: `New booking: ${packageDetails.title} by ${user?.name || contactEmail}`,
+      link: `/admin/dashboard/bookings/${booking.id}`,
+    })
+  }
+
   revalidatePath("/bookings")
   redirect(`/bookings/${booking.id}/confirmation`)
 }
 
-export async function updateBookingStatus(id: string, status: string) {
-  await db.booking.update({
-    where: {
-      id,
+export async function updateBookingStatus(bookingId: string, status: string) {
+  try {
+    const user = await getCurrentUser()
+
+    if (!user || user.role !== "ADMIN") {
+      return { error: "Unauthorized" }
+    }
+
+    const updatedBooking = await db.booking.update({
+      where: {
+        id: bookingId,
+      },
+      data: {
+        status: status as any,
+      },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+        package: {
+          select: {
+            title: true,
+          },
+        },
+      },
+    })
+
+    // Create notification
+    await createNotification({
+      userId: user.id,
+      type: "BOOKING",
+      message: `Booking for ${updatedBooking.package.title} by ${updatedBooking.user.name} has been ${status.toLowerCase()}`,
+      link: `/admin/dashboard/bookings/${bookingId}`,
+    })
+
+    revalidatePath("/admin/dashboard/bookings")
+    return { success: true, booking: updatedBooking }
+  } catch (error) {
+    console.error("Error updating booking status:", error)
+    return { error: "Failed to update booking status" }
+  }
+}
+
+export async function getBookings() {
+  const bookings = await db.booking.findMany({
+    orderBy: {
+      createdAt: "desc",
     },
-    data: {
-      status: status as any,
+    include: {
+      user: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+      package: {
+        select: {
+          title: true,
+          destination: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
     },
   })
-
-  revalidatePath("/admin/bookings")
+  return bookings
 }
 
 // Contact actions
@@ -594,7 +861,7 @@ export async function submitContactForm(formData: FormData) {
   const message = formData.get("message") as string
 
   // Save contact message
-  await db.contact.create({
+  const contact = await db.contact.create({
     data: {
       name,
       email,
@@ -603,9 +870,25 @@ export async function submitContactForm(formData: FormData) {
     },
   })
 
+  // Create notification for admin users
+  const admins = await db.user.findMany({
+    where: {
+      role: "ADMIN",
+    },
+  })
+
+  for (const admin of admins) {
+    await createNotification({
+      userId: admin.id,
+      type: "CONTACT",
+      message: `New contact message from ${name}: ${subject}`,
+      link: `/admin/dashboard/contacts/${contact.id}`,
+    })
+  }
+
   // Send auto-response email
   await resend.emails.send({
-    from: "Rebel Rover <contact@rebelrover.com>",
+    from: "Traveller World <contact@cscsylhet.com>",
     to: [email],
     subject: "We've received your message",
     react: ContactResponseEmail({
@@ -615,11 +898,17 @@ export async function submitContactForm(formData: FormData) {
   })
 
   revalidatePath("/contact")
-  redirect("/contact/thank-you")
+  return { success: true, message: "Contact message sent successfully!" }
 }
 
 export async function respondToContact(id: string) {
-  await db.contact.update({
+  const user = await getCurrentUser()
+
+  if (!user || user.role !== "ADMIN") {
+    return { error: "Unauthorized" }
+  }
+
+  const contact = await db.contact.update({
     where: {
       id,
     },
@@ -628,24 +917,30 @@ export async function respondToContact(id: string) {
     },
   })
 
-  revalidatePath("/admin/contacts")
+  // Create notification
+  await createNotification({
+    userId: user.id,
+    type: "CONTACT",
+    message: `You responded to contact from ${contact.name}`,
+    link: `/admin/dashboard/contacts/${id}`,
+  })
+
+  revalidatePath("/admin/dashboard/contacts")
+  return { success: true }
 }
 
 // Subscriber actions
 export async function addSubscriber(formData: FormData) {
   const email = formData.get("email") as string
-
   // Check if already subscribed
   const existingSubscriber = await db.subscriber.findUnique({
     where: {
       email,
     },
   })
-
   if (existingSubscriber) {
     return { error: "Email already subscribed" }
   }
-
   // Add subscriber
   await db.subscriber.create({
     data: {
@@ -653,11 +948,26 @@ export async function addSubscriber(formData: FormData) {
     },
   })
 
+  // Create notification for admin users
+  const admins = await db.user.findMany({
+    where: {
+      role: "ADMIN",
+    },
+  })
+
+  for (const admin of admins) {
+    await createNotification({
+      userId: admin.id,
+      type: "SYSTEM",
+      message: `New newsletter subscriber: ${email}`,
+    })
+  }
+
   // Send confirmation email
   await resend.emails.send({
-    from: "Rebel Rover <newsletter@rebelrover.com>",
+    from: "Traveller World<newsletter@cscsylhet.com>",
     to: [email],
-    subject: "Welcome to Rebel Rover Newsletter",
+    subject: "Welcome to Traveller World Newsletter",
     react: SubscriptionConfirmationEmail({
       email,
     }),
@@ -665,5 +975,50 @@ export async function addSubscriber(formData: FormData) {
 
   revalidatePath("/")
   return { success: "Successfully subscribed" }
+}
+
+// Mock data for notifications (for development/testing)
+export async function getMockNotifications() {
+  return [
+    {
+      id: "1",
+      type: "BOOKING",
+      message: "New booking: Paris Adventure Tour by John Doe",
+      link: "/admin/dashboard/bookings/1",
+      createdAt: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
+      read: false,
+    },
+    {
+      id: "2",
+      type: "CONTACT",
+      message: "New contact message from Sarah Smith: Tour Inquiry",
+      link: "/admin/dashboard/contacts/2",
+      createdAt: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
+      read: false,
+    },
+    {
+      id: "3",
+      type: "BLOG",
+      message: "New blog published: Top 10 Destinations for 2025",
+      link: "/admin/dashboard/blogs/3",
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
+      read: true,
+    },
+    {
+      id: "4",
+      type: "SYSTEM",
+      message: "System maintenance scheduled for tomorrow at 2:00 AM",
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
+      read: true,
+    },
+    {
+      id: "5",
+      type: "BOOKING",
+      message: "Booking #1234 has been confirmed",
+      link: "/admin/dashboard/bookings/1234",
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 36), // 1.5 days ago
+      read: true,
+    },
+  ]
 }
 

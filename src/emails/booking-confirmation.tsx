@@ -41,7 +41,7 @@ export const BookingConfirmationEmail = ({
             <Heading className="mb-4 text-center text-2xl font-bold text-gray-800">Booking Confirmation</Heading>
             <Text className="mb-4 text-gray-700">Hello {customerName},</Text>
             <Text className="mb-4 text-gray-700">
-              Thank you for booking with Rebel Rover! Your adventure to <strong>{destination}</strong> is confirmed.
+              Thank you for booking with Traveller World! Your adventure to <strong>{destination}</strong> is confirmed.
               Below are your booking details:
             </Text>
             <Section className="mb-6 rounded bg-gray-50 p-4">
@@ -79,17 +79,17 @@ export const BookingConfirmationEmail = ({
             </Section>
             <Text className="mb-4 text-gray-700">
               If you have any questions or need to make changes to your booking, please contact our customer service
-              team at support@rebelrover.com or call us at +1 (123) 456-7890.
+              team at support@travellerworld.com or call us at +1 (123) 456-7890.
             </Text>
             <Text className="mb-4 text-gray-700">We're excited to help you create unforgettable memories!</Text>
             <Text className="text-gray-700">
               Best regards,
               <br />
-              The Rebel Rover Team
+              The Traveller World Team
             </Text>
             <Hr className="my-6 border-gray-300" />
             <Text className="text-center text-xs text-gray-500">
-              © {new Date().getFullYear()} Rebel Rover. All rights reserved.
+              © {new Date().getFullYear()} Traveller World. All rights reserved.
               <br />
               123 Travel Street, City, Country
             </Text>

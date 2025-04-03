@@ -12,7 +12,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Facebook, X, Eye, EyeOff } from "lucide-react"
 import { registerSchema, type RegisterFormValues } from "@/schemas/auth"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import axios from "axios"
 import { registerUser } from "@/lib/actions"
 
 export default function SignUpPage() {

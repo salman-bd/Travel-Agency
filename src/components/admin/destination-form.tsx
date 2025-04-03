@@ -17,6 +17,7 @@ import axios from "axios"
 import { Loader2, Upload } from "lucide-react"
 import Image from "next/image"
 import { toast } from "sonner"
+import { createDestination, updateDestination } from "@/lib/actions"
 
 
 interface DestinationFormProps {
@@ -51,16 +52,28 @@ export default function DestinationForm({ destination }: DestinationFormProps) {
     try {
       if (destination) {
         // Update existing destination
-        await axios.put(`/api/destinations/${destination.id}`, data)
+        const id = destination.id
+        const response = await updateDestination(id, data)
+        if (response.success) {
+          toast.success("Destination updated", {
+            description: "The destination has been updated successfully.",
+            className: "bg-green-50 border-green-200 text-green-800",
+          })
+        }
       } else {
         // Create new destination
-        await axios.post("/api/destinations", data)
-      }
-
+        const response = await createDestination(data)
+        if (response.success) {
+          toast.success("Destination updated", {
+            description: "The destination has been updated successfully.",
+            className: "bg-green-50 border-green-200 text-green-800",
+          })
+        }
+      }  
       router.push("/admin/dashboard/destinations")
       router.refresh()
-    } catch (error: any) {
-      setError(error.response?.data?.error || "Something went wrong. Please try again.")
+    } catch (error) {
+      setError(error?.response?.data?.error || "Something went wrong. Please try again.")
       setIsLoading(false)
     }
   }
@@ -69,6 +82,15 @@ export default function DestinationForm({ destination }: DestinationFormProps) {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+    const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+    if (file.size > MAX_FILE_SIZE) {
+      setError("File size exceeds 5MB. Please choose a smaller file.")
+      toast.error("Too Large Image", {
+        description: "File size exceeds 5MB. Please choose a smaller file.",
+        className: "bg-red-50 border-red-200 text-red-800",
+      })
+      return
+    }
     const formData = new FormData()
     formData.append("file", file)
     try {
@@ -79,21 +101,25 @@ export default function DestinationForm({ destination }: DestinationFormProps) {
         },
       })
       if (!response.data.success) {
+        setError(response?.data?.message || "Something went wrong. Please try again.")
         throw new Error(response.data.message || "Failed to add the image")
       }
       form.setValue("imageUrl", response.data.url)
-      toast.success("Success!", {
-        description: "Operation completed successfully.",
+      toast.success("Image Uploaded", {
+        description: "The image has been uploaded successfully.",
+        className: "bg-green-50 border-green-200 text-green-800",
       })
     } catch (error) {
       console.error("Error uploading image:", error)
-      toast.error("Error!", {
-        description: "Something went wrong uploading image.",
-      })    
+      toast.error("Image Uploading Failed", {
+        description: "Something went wrong uploading image",
+        className: "bg-red-50 border-red-200 text-red-800",
+      })
     } finally {
       setImageUploading(false)
     }
   }
+
 
   return (
     <div className="space-y-6">
@@ -148,7 +174,7 @@ export default function DestinationForm({ destination }: DestinationFormProps) {
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="bg-white">
                       {categories.map((category) => (
                         <SelectItem key={category} value={category}>
                           {category}
@@ -272,4 +298,3 @@ export default function DestinationForm({ destination }: DestinationFormProps) {
     </div>
   )
 }
-

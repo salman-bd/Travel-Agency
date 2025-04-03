@@ -7,7 +7,7 @@ import { Facebook, Instagram, Twitter, Youtube, Lock, MapPin, Phone, Mail } from
 import { useSession } from "next-auth/react"
 import { addSubscriber } from "@/lib/actions"
 import { useState } from "react"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "sonner"
 
 const Footer = () => {
   const { data: session } = useSession()
@@ -25,23 +25,21 @@ const Footer = () => {
       const result = await addSubscriber(formData)
 
       if (result.success) {
-        toast({
-          title: "Success!",
+        toast.success("Success", {
           description: "You have been subscribed to our newsletter.",
+          className: "bg-green-50 border-green-200 text-green-800",
         })
         setEmail("")
       } else if (result.error) {
-        toast({
-          title: "Error",
-          description: result.error,
-          variant: "destructive",
+        toast.error("Error", {
+          description: result.error || "Something went wrong. Please try again.",
+          className: "bg-red-50 border-red-200 text-red-800",
         })
       }
     } catch (error) {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Something went wrong. Please try again.",
-        variant: "destructive",
+        className: "bg-red-50 border-red-200 text-red-800",
       })
     } finally {
       setIsSubmitting(false)
@@ -85,12 +83,12 @@ const Footer = () => {
         <div className="container mx-auto grid grid-cols-1 gap-8 px-4 md:grid-cols-3 lg:grid-cols-5">
           {/* Logo and Description */}
           <div>
-            <Link href="/" className="mb-4 inline-block">
+            <Link href="/" className="mb-4 ">
               <div className="flex items-center gap-2">
                 <div className="relative h-12 w-12 overflow-hidden rounded-full">
-                  <Image src="/placeholder.svg?height=48&width=48" alt="Rebel Rover Logo" width={48} height={48} />
+                  <Image src="/logo/traveller-world.png?height=48&width=48" alt="Traveller World Logo" width={48} height={48} />
                 </div>
-                <span className="text-2xl font-bold text-[#0a1e3c]">REBEL ROVER</span>
+                <span className="text-2xl font-bold text-[#0a1e3c]">TRAVELLER WORLD</span>
               </div>
             </Link>
             <p className="mt-4 text-gray-600">

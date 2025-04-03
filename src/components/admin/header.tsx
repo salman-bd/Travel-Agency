@@ -3,7 +3,23 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, Bell, User } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import {
+  Menu,
+  X,
+  LayoutDashboard,
+  Map,
+  Package,
+  CalendarClock,
+  MessageSquare,
+  FileText,
+  LogOut,
+  User,
+  Compass,
+} from "lucide-react"
+import { signOut } from "next-auth/react"
+import { cn } from "@/lib/utils"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,68 +28,121 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
-import { signOut } from "next-auth/react"
-import type { SafeUser } from "@/types"
+import Notifications from "./notifications"
 
-interface AdminHeaderProps {
-  user: SafeUser
-}
+const sidebarItems = [
+  {
+    title: "Dashboard",
+    href: "/admin/dashboard",
+    icon: <LayoutDashboard className="h-5 w-5" />,
+  },
+  {
+    title: "Destinations",
+    href: "/admin/dashboard/destinations",
+    icon: <Map className="h-5 w-5" />,
+  },
+  {
+    title: "Packages",
+    href: "/admin/dashboard/packages",
+    icon: <Package className="h-5 w-5" />,
+  },
+  {
+    title: "Bookings",
+    href: "/admin/dashboard/bookings",
+    icon: <CalendarClock className="h-5 w-5" />,
+  },
+  {
+    title: "Contacts",
+    href: "/admin/dashboard/contacts",
+    icon: <MessageSquare className="h-5 w-5" />,
+  },
+  {
+    title: "Blogs",
+    href: "/admin/dashboard/blogs",
+    icon: <FileText className="h-5 w-5" />,
+  },
+]
 
-export default function AdminHeader({ user }: AdminHeaderProps) {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+export default function AdminHeader() {
+  const [open, setOpen] = useState(false)
   const pathname = usePathname()
 
-  const getPageTitle = () => {
-    const path = pathname.split("/").filter(Boolean)
-    if (path.length === 1 && path[0] === "admin") return "Dashboard"
-    if (path.length > 1) {
-      return path[1].charAt(0).toUpperCase() + path[1].slice(1)
-    }
-    return "Dashboard"
-  }
-
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-white px-4 sm:px-6">
-      <div className="flex flex-1 items-center gap-2 md:hidden">
-        <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-          <Menu className="h-5 w-5" />
-          <span className="sr-only">Toggle menu</span>
-        </Button>
-        <span className="text-lg font-semibold">{getPageTitle()}</span>
-      </div>
-      <div className="hidden flex-1 md:block">
-        <h1 className="text-lg font-semibold">{getPageTitle()}</h1>
-      </div>
-      <div className="flex items-center gap-4">
-        <Link href="/" target="_blank" className="text-sm text-primary hover:underline">
-          View Website
+    <header className="sticky top-0 z-20 flex h-16 items-center bg-white px-4 shadow-sm md:px-6">
+      <div className="flex items-center gap-2 md:hidden">
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="md:hidden">
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Toggle menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[280px] p-0 border-r-0 z-50">
+            <div className="flex h-16 items-center px-6 bg-white border-b">
+              <Link href="/admin" className="flex items-center gap-2 font-bold" onClick={() => setOpen(false)}>
+                <div className="relative h-8 w-8 overflow-hidden rounded-full bg-[#069aba]">
+                  <Compass className="h-5 w-5 absolute inset-0 m-auto text-white" />
+                </div>
+                <span className="text-lg text-[#069aba]">REBEL ROVER</span>
+              </Link>
+              <Button variant="ghost" size="icon" className="ml-auto" onClick={() => setOpen(false)}>
+                <X className="h-5 w-5" />
+                <span className="sr-only">Close</span>
+              </Button>
+            </div>
+            <nav className="grid gap-1 p-4 bg-white h-full">
+              {sidebarItems.map((item, index) => (
+                <Link
+                  key={index}
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg px-4 py-3 transition-all",
+                    pathname === item.href
+                      ? "bg-[#069aba] text-white shadow-md"
+                      : "text-gray-700 hover:bg-[#069aba]/10",
+                  )}
+                  onClick={() => setOpen(false)}
+                >
+                  {item.icon}
+                  <span>{item.title}</span>
+                </Link>
+              ))}
+              <Button
+                variant="ghost"
+                className="mt-4 justify-start gap-3 text-gray-700 hover:bg-[#069aba]/10"
+                onClick={() => {
+                  setOpen(false)
+                  signOut({ callbackUrl: "/" })
+                }}
+              >
+                <LogOut className="h-5 w-5" />
+                <span>Sign Out</span>
+              </Button>
+            </nav>
+          </SheetContent>
+        </Sheet>
+        <Link href="/admin" className="flex items-center gap-2 font-bold md:hidden">
+          <div className="relative h-8 w-8 overflow-hidden rounded-full bg-[#069aba]">
+            <Compass className="h-5 w-5 absolute inset-0 m-auto text-white" />
+          </div>
+          <span className="text-[#069aba]">REBEL ROVER</span>
         </Link>
-        <Button variant="ghost" size="icon" className="text-gray-500">
-          <Bell className="h-5 w-5" />
-          <span className="sr-only">Notifications</span>
-        </Button>
+      </div>
+      <div className="ml-auto flex items-center gap-4">
+        <Notifications />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <User className="h-5 w-5" />
-              <span className="sr-only">User menu</span>
+            <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 bg-[#069aba] text-white">
+              <User className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <span>{user.name}</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <span>{user.email}</span>
-            </DropdownMenuItem>
+            <DropdownMenuItem>Profile</DropdownMenuItem>
+            <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Link href="/admin/settings">Settings</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>Logout</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>Log out</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

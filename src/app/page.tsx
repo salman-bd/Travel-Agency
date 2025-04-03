@@ -1,7 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, ChevronLeft, ChevronRight, DollarSign, Star, Trophy, Users2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
 
 export default function Home() {
   return (

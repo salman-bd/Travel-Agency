@@ -12,10 +12,11 @@ interface BookPackagePageProps {
 
 export default async function BookPackagePage({ params }: BookPackagePageProps) {
   const user = await requireAuth()
+  const { id } = await params
 
   const pkg = await db.package.findUnique({
     where: {
-      id: params.id,
+      id,
     },
     include: {
       destination: true,

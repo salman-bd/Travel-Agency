@@ -15,9 +15,10 @@ interface PackagePageProps {
 }
 
 export default async function PackagePage({ params }: PackagePageProps) {
+  const { id } = await params
   const pkg = await db.package.findUnique({
     where: {
-      id: params.id,
+      id,
     },
     include: {
       destination: true,

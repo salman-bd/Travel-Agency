@@ -1,8 +1,19 @@
 import Image from "next/image"
 import Link from "next/link"
-import { ChevronRight } from "lucide-react"
+import { ChevronRight, Facebook, Twitter, Linkedin, Calendar, User } from "lucide-react"
+import { getBlogs } from "@/lib/actions"
+import { formatDate } from "@/lib/utils"
 
-export default function TravelStoriesPage() {
+export default async function TravelStoriesPage() {
+  const blogs = await getBlogs()
+
+  // Get the featured blog (first blog) and remaining blogs
+  const featuredBlog = blogs[0]
+  const recentBlogs = blogs.slice(0, 3)
+
+  // Extract unique categories from blogs
+  const categories = [...new Set(blogs.map((blog) => blog.category))]
+
   return (
     <div className="flex min-h-screen flex-col">
       {/* Hero Section */}
@@ -10,6 +21,9 @@ export default function TravelStoriesPage() {
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center px-4 text-center text-white">
           <h1 className="mb-2 text-4xl font-bold md:text-5xl">Travel Stories For Now and the Future</h1>
+          <p className="max-w-2xl text-lg">
+            Discover amazing destinations around the globe with our expertly crafted travel guides
+          </p>
         </div>
       </section>
 
@@ -19,129 +33,116 @@ export default function TravelStoriesPage() {
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             {/* Main Content */}
             <div className="lg:col-span-2">
-              <div className="mb-8">
-                <div className="relative mb-6 h-[400px] w-full overflow-hidden rounded-lg">
-                  <Image
-                    src="/travelling-1.jpg?height=600&width=800"
-                    alt="traveling"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+              {featuredBlog && (
+                <div className="mb-8">
+                  <div className="relative mb-6 h-[400px] w-full overflow-hidden rounded-lg">
+                    <Image
+                      src={featuredBlog.imageUrl || "/placeholder.svg"}
+                      alt={featuredBlog.title}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
 
-                <h1 className="mb-4 text-3xl font-bold">Rice Terraces, Tegallalang</h1>
-
-                <div className="mb-6 text-gray-700">
-                  <p className="mb-4">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                    aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
-                    dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
-                    officia deserunt mollit anim id est laborum. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
-                    voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                  </p>
-
-                  <h2 className="mb-4 text-2xl font-bold">Rice Terraces, Tegallalang</h2>
-
-                  <p className="mb-4">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                    aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
-                    dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
-                  </p>
-
-                  <div className="my-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="relative h-[300px] overflow-hidden rounded-lg">
-                      <Image
-                        src="/travelling2.jpg?height=400&width=600"
-                        alt="Travelers with backpacks"
-                        fill
-                        className="object-cover"
-                      />
+                  <div className="mb-4 flex items-center gap-4 text-sm text-gray-500">
+                    <div className="flex items-center gap-1">
+                      <User className="h-4 w-4" />
+                      <span>{featuredBlog.author.name}</span>
                     </div>
-                    <div className="relative h-[300px] overflow-hidden rounded-lg">
-                      <Image
-                        src="/traveller2.jpg?height=400&width=600"
-                        alt="Travelers with backpacks"
-                        fill
-                        className="object-cover"
-                      />
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      <span>{formatDate(new Date(featuredBlog.createdAt))}</span>
+                    </div>
+                    <div className="rounded-full bg-gray-100 px-3 py-1">{featuredBlog.category}</div>
+                  </div>
+
+                  <h1 className="mb-4 text-3xl font-bold">{featuredBlog.title}</h1>
+
+                  <div className="mb-6 text-gray-700">
+                    <p className="mb-4">{featuredBlog.content}</p>
+
+                    <div className="my-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div className="relative h-[300px] overflow-hidden rounded-lg">
+                        <Image
+                          src="/travelling2.jpg?height=400&width=600"
+                          alt="Travelers with backpacks"
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="relative h-[300px] overflow-hidden rounded-lg">
+                        <Image
+                          src="/traveller2.jpg?height=400&width=600"
+                          alt="Travelers with backpacks"
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  <p className="mb-4">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                    aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
-                    dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
-                    officia deserunt mollit anim id est laborum. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
-                    voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                  </p>
+                  <div className="mt-8 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">Tags: </span>
+                      <Link
+                        href={`/category/${featuredBlog.category.toLowerCase()}`}
+                        className="text-sm hover:underline"
+                      >
+                        {featuredBlog.category}
+                      </Link>
+                      <Link href="/travel" className="text-sm hover:underline">
+                        Travel
+                      </Link>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">Share This: </span>
+                      <Link href="#" className="rounded-full border border-gray-300 p-2 hover:bg-gray-100">
+                        <Facebook className="h-4 w-4" />
+                      </Link>
+                      <Link href="#" className="rounded-full border border-gray-300 p-2 hover:bg-gray-100">
+                        <Twitter className="h-4 w-4" />
+                      </Link>
+                      <Link href="#" className="rounded-full border border-gray-300 p-2 hover:bg-gray-100">
+                        <Linkedin className="h-4 w-4" />
+                      </Link>
+                    </div>
+                  </div>
                 </div>
+              )}
 
-                <div className="mt-8 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">Tags: </span>
-                    <Link href="/destinations" className="text-sm hover:underline">
-                      Destintion,
-                    </Link>
-                    <Link href="/travel" className="text-sm hover:underline">
-                      Travel
-                    </Link>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">Share This: </span>
-                    <Link href="#" className="rounded-full border border-gray-300 p-2 hover:bg-gray-100">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M18 2H15C13.6739 2 12.4021 2.52678 11.4645 3.46447C10.5268 4.40215 10 5.67392 10 7V10H7V14H10V22H14V14H17L18 10H14V7C14 6.73478 14.1054 6.48043 14.2929 6.29289C14.4804 6.10536 14.7348 6 15 6H18V2Z"
-                          stroke="black"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
+              {/* More Blog Posts Section */}
+              <div className="mt-12">
+                <h2 className="mb-6 text-2xl font-bold">More Travel Stories</h2>
+                <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+                  {blogs.slice(1).map((blog) => (
+                    <div key={blog.id} className="group">
+                      <div className="relative mb-4 h-[220px] w-full overflow-hidden rounded-lg">
+                        <Image
+                          src={blog.imageUrl || "/placeholder.svg"}
+                          alt={blog.title}
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
                         />
-                      </svg>
-                    </Link>
-                    <Link href="#" className="rounded-full border border-gray-300 p-2 hover:bg-gray-100">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M23 3.00005C22.0424 3.67552 20.9821 4.19216 19.86 4.53005C19.2577 3.83756 18.4573 3.34674 17.567 3.12397C16.6767 2.90121 15.7395 2.95724 14.8821 3.2845C14.0247 3.61176 13.2884 4.19445 12.773 4.95376C12.2575 5.71308 11.9877 6.61238 12 7.53005V8.53005C10.2426 8.57561 8.50127 8.18586 6.93101 7.39549C5.36074 6.60513 4.01032 5.43868 3 4.00005C3 4.00005 -1 13 8 17C5.94053 18.398 3.48716 19.099 1 19C10 24 21 19 21 7.50005C20.9991 7.2215 20.9723 6.94364 20.92 6.67005C21.9406 5.66354 22.6608 4.39276 23 3.00005Z"
-                          stroke="black"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </Link>
-                    <Link href="#" className="rounded-full border border-gray-300 p-2 hover:bg-gray-100">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M16 8C17.5913 8 19.1174 8.63214 20.2426 9.75736C21.3679 10.8826 22 12.4087 22 14V21H18V14C18 13.4696 17.7893 12.9609 17.4142 12.5858C17.0391 12.2107 16.5304 12 16 12C15.4696 12 14.9609 12.2107 14.5858 12.5858C14.2107 12.9609 14 13.4696 14 14V21H10V14C10 12.4087 10.6321 10.8826 11.7574 9.75736C12.8826 8.63214 14.4087 8 16 8Z"
-                          stroke="black"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M6 9H2V21H6V9Z"
-                          stroke="black"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M4 6C5.10457 6 6 5.10457 6 4C6 2.89543 5.10457 2 4 2C2.89543 2 2 2.89543 2 4C2 5.10457 2.89543 6 4 6Z"
-                          stroke="black"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </Link>
-                  </div>
+                      </div>
+                      <div className="mb-2 flex items-center gap-2 text-xs text-gray-500">
+                        <span>{formatDate(new Date(blog.createdAt))}</span>
+                        <span>•</span>
+                        <span>{blog.category}</span>
+                      </div>
+                      <h3 className="mb-2 text-lg font-bold transition-colors group-hover:text-primary">
+                        <Link href={`/blog/${blog.slug}`}>{blog.title}</Link>
+                      </h3>
+                      <p className="text-sm text-gray-600">{blog.excerpt}</p>
+                      <Link
+                        href={`/blog/${blog.slug}`}
+                        className="mt-3 inline-flex items-center text-sm font-medium text-primary"
+                      >
+                        Read More
+                        <ChevronRight className="ml-1 h-4 w-4" />
+                      </Link>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -149,22 +150,22 @@ export default function TravelStoriesPage() {
             {/* Sidebar */}
             <div className="lg:col-span-1">
               <div className="mb-8 rounded-lg bg-white p-6 shadow">
-                <h3 className="mb-6 text-xl font-bold">Recent Post</h3>
+                <h3 className="mb-6 text-xl font-bold">Recent Posts</h3>
                 <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex gap-4">
+                  {recentBlogs.map((blog) => (
+                    <div key={blog.id} className="flex gap-4">
                       <Image
-                        src="/gallery/paris.png?height=80&width=80"
-                        alt="Recent post"
+                        src={blog.imageUrl || "/placeholder.svg"}
+                        alt={blog.title}
                         width={80}
                         height={80}
                         className="h-20 w-20 rounded-md object-cover"
                       />
                       <div>
                         <h4 className="font-medium hover:text-primary">
-                          <Link href="#">Travel Stories for Now and the Future</Link>
+                          <Link href={`/blog/${blog.slug}`}>{blog.title}</Link>
                         </h4>
-                        <p className="text-xs text-gray-500">14 Dec 2022</p>
+                        <p className="text-xs text-gray-500">{formatDate(new Date(blog.createdAt))}</p>
                       </div>
                     </div>
                   ))}
@@ -172,33 +173,41 @@ export default function TravelStoriesPage() {
               </div>
 
               <div className="mb-8 rounded-lg bg-white p-6 shadow">
-                <h3 className="mb-6 text-xl font-bold">Catagories</h3>
+                <h3 className="mb-6 text-xl font-bold">Categories</h3>
                 <ul className="space-y-4">
-                  <li>
-                    <Link href="#" className="flex items-center gap-2 hover:text-primary">
-                      <ChevronRight className="h-4 w-4" />
-                      <span>Travel</span>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="#" className="flex items-center gap-2 hover:text-primary">
-                      <ChevronRight className="h-4 w-4" />
-                      <span>Tips</span>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="#" className="flex items-center gap-2 hover:text-primary">
-                      <ChevronRight className="h-4 w-4" />
-                      <span>Stories</span>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="#" className="flex items-center gap-2 hover:text-primary">
-                      <ChevronRight className="h-4 w-4" />
-                      <span>Destination</span>
-                    </Link>
-                  </li>
+                  {categories.map((category) => (
+                    <li key={category}>
+                      <Link
+                        href={`/category/${category.toLowerCase()}`}
+                        className="flex items-center gap-2 hover:text-primary"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                        <span>{category}</span>
+                      </Link>
+                    </li>
+                  ))}
                 </ul>
+              </div>
+
+              <div className="mb-8 rounded-lg bg-white p-6 shadow">
+                <h3 className="mb-6 text-xl font-bold">Subscribe</h3>
+                <p className="mb-4 text-sm text-gray-600">
+                  Subscribe to our newsletter to get the latest travel stories and exclusive offers.
+                </p>
+                <form className="space-y-3">
+                  <input
+                    type="email"
+                    placeholder="Your email address"
+                    className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm focus:border-primary focus:outline-none"
+                    required
+                  />
+                  <button
+                    type="submit"
+                    className="w-full rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-black/90"
+                  >
+                    Subscribe
+                  </button>
+                </form>
               </div>
 
               <div className="rounded-lg bg-black p-6 text-white">
@@ -244,7 +253,6 @@ export default function TravelStoriesPage() {
           </div>
         </div>
       </section>
-
     </div>
   )
 }

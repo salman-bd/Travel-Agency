@@ -16,9 +16,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import axios from "axios"
 import { Loader2, Upload } from "lucide-react"
 import Image from "next/image"
-import { toast, Toaster } from "react-hot-toast"
-import { createBlog } from "@/lib/actions"
-import { z } from "zod"
+import { createBlog, updateBlog } from "@/lib/actions"
+import { toast } from "sonner"
 
 interface BlogFormProps {
   blog?: Blog
@@ -50,11 +49,22 @@ export default function BlogForm({ blog, authorId }: BlogFormProps) {
     setError(null)
     try {
       if (blog) {
-        // Update existing blog
-        await axios.put(`/api/blogs/${blog.id}`, data)
+        const id = blog.id
+        const response = await updateBlog(id, data)
+        if (response.success) {
+          toast.success("Blog updated", {
+            description: "The Blog has been updated successfully.",
+            className: "bg-green-50 border-green-200 text-green-800",
+          })
+        }
       } else if (authorId) {
-        // Create new blog
-        await createBlog(data)
+        const response = await createBlog(data)
+        if (response.success) {
+          toast.success("Blog created", {
+            description: "The Blog has been created successfully.",
+            className: "bg-green-50 border-green-200 text-green-800",
+          })
+        }
       }
       router.push("/admin/dashboard/blogs")
       router.refresh()
@@ -64,38 +74,48 @@ export default function BlogForm({ blog, authorId }: BlogFormProps) {
     }
   }
 
-  // Handle image upload  
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {  
-    const file = e.target.files?.[0];  
-    if (!file) return;  
-    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB  
-    if (file.size > MAX_FILE_SIZE) {  
-      setError("File size exceeds 5MB. Please choose a smaller file.");  
-      toast.error("File size exceeds 5MB. Please choose a smaller file.", {duration:4000});  
-      return;  
-    }  
-    const formData = new FormData();  
-    formData.append("file", file);  
-    try {  
-      setImageUploading(true);  
-      const response = await axios.post("/api/image-upload", formData, {  
-        headers: {  
-          "Content-Type": "multipart/form-data",  
-        },  
-      });  
-      if (!response.data.success) {  
-        setError(response?.data?.message || "Something went wrong. Please try again.");  
-        throw new Error(response.data.message || "Failed to add the image");  
-      }  
-      form.setValue("imageUrl", response.data.url);  
-      toast.success("Image uploaded successfully.", {duration: 4000});  
-    } catch (error) {  
-      console.error("Error uploading image:", error);  
-      toast.error("Something went wrong uploading image.", {duration: 4000});    
-    } finally {  
-      setImageUploading(false);  
-    }  
-  };  
+  // Handle image upload
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+    if (file.size > MAX_FILE_SIZE) {
+      setError("File size exceeds 5MB. Please choose a smaller file.")
+      toast.error("Too Large Image", {
+        description: "File size exceeds 5MB. Please choose a smaller file.",
+        className: "bg-red-50 border-red-200 text-red-800",
+      })
+      return
+    }
+    const formData = new FormData()
+    formData.append("file", file)
+    try {
+      setImageUploading(true)
+      const response = await axios.post("/api/image-upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      if (!response.data.success) {
+        setError(response?.data?.message || "Something went wrong. Please try again.")
+        throw new Error(response.data.message || "Failed to add the image")
+      }
+      form.setValue("imageUrl", response.data.url)
+      toast.success("Image Uploaded", {
+        description: "The image has been uploaded successfully.",
+        className: "bg-green-50 border-green-200 text-green-800",
+      })
+    } catch (error) {
+      console.error("Error uploading image:", error)
+      toast.error("Image Uploading Failed", {
+        description: "Something went wrong uploading image",
+        className: "bg-red-50 border-red-200 text-red-800",
+      })
+    } finally {
+      setImageUploading(false)
+    }
+  }
+  
 
   return (
     <div className="space-y-6">
@@ -104,7 +124,6 @@ export default function BlogForm({ blog, authorId }: BlogFormProps) {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      <Toaster position="top-center"/>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -135,7 +154,7 @@ export default function BlogForm({ blog, authorId }: BlogFormProps) {
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="bg-white">
                       {categories.map((category) => (
                         <SelectItem key={category} value={category}>
                           {category}
@@ -244,7 +263,7 @@ export default function BlogForm({ blog, authorId }: BlogFormProps) {
             <Button type="submit" disabled={isLoading}>
               {isLoading ? "Saving..." : blog ? "Update Blog" : "Create Blog"}
             </Button>
-            <Button type="button" variant="outline" onClick={() => router.push("/admin/blogs")}>
+            <Button type="button" variant="outline" onClick={() => router.push("/admin/dashboard/blogs")}>
               Cancel
             </Button>
           </div>

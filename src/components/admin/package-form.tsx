@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useForm, useFieldArray } from "react-hook-form"
@@ -17,9 +19,10 @@ import { createPackage, updatePackage } from "@/lib/actions"
 import Image from "next/image"
 import axios from "axios"
 import { toast } from "sonner"
+import { PackageWithItinerary } from "@/types/admin"
 
 interface PackageFormProps {
-  package?: Package & { itinerary: Itinerary[] }
+  package?: PackageWithItinerary
   destinations: { id: string; name: string }[]
 }
 
@@ -79,7 +82,6 @@ export default function PackageForm({ package: pkg, destinations }: PackageFormP
   const onSubmit = async (data: PackageFormValues) => {
     setIsLoading(true)
     setError(null)
-
     try {
       // Convert comma-separated strings to arrays
       const formData = new FormData()
@@ -87,7 +89,6 @@ export default function PackageForm({ package: pkg, destinations }: PackageFormP
       if (pkg) {
         formData.append("id", pkg.id)
       }
-
       formData.append("title", data.title)
       formData.append("description", data.description)
       formData.append("price", data.price.toString())
@@ -115,28 +116,40 @@ export default function PackageForm({ package: pkg, destinations }: PackageFormP
         await updatePackage(formData)
         toast.success("Package updated", {
           description: "The package has been updated successfully.",
+          className: "bg-green-50 border-green-200 text-green-800",
         })
       } else {
         await createPackage(formData)
-        toast.success( "Package created", {
+        toast.success("Package created", {
           description: "The package has been created successfully.",
+          className: "bg-green-50 border-green-200 text-green-800",
         })
       }
-
-      router.push("/admin/packages")
+      router.push("/admin/dashboard/packages")
       router.refresh()
     } catch (error: any) {
       setError(error.message || "Something went wrong. Please try again.")
-      toast.error("Error",{
+      toast.error("Error", {
         description: error.message || "Something went wrong. Please try again.",
+        className: "bg-red-50 border-red-200 text-red-800",
       })
       setIsLoading(false)
     }
   }
 
+  // Handle image upload
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+    const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+    if (file.size > MAX_FILE_SIZE) {
+      setError("File size exceeds 5MB. Please choose a smaller file.")
+      toast.error("Too Large Image", {
+        description: "File size exceeds 5MB. Please choose a smaller file.",
+        className: "bg-red-50 border-red-200 text-red-800",
+      })
+      return
+    }
     const formData = new FormData()
     formData.append("file", file)
     try {
@@ -147,17 +160,20 @@ export default function PackageForm({ package: pkg, destinations }: PackageFormP
         },
       })
       if (!response.data.success) {
+        setError(response?.data?.message || "Something went wrong. Please try again.")
         throw new Error(response.data.message || "Failed to add the image")
       }
       form.setValue("imageUrl", response.data.url)
-      toast.success("Success!", {
-        description: "Operation completed successfully.",
+      toast.success("Image Uploaded", {
+        description: "The image has been uploaded successfully.",
+        className: "bg-green-50 border-green-200 text-green-800",
       })
     } catch (error) {
       console.error("Error uploading image:", error)
-      toast.error("Error!", {
-        description: "Something went wrong uploading image.",
-      })    
+      toast.error("Image Uploading Failed", {
+        description: "Something went wrong uploading image",
+        className: "bg-red-50 border-red-200 text-red-800",
+      })
     } finally {
       setImageUploading(false)
     }
@@ -200,7 +216,7 @@ export default function PackageForm({ package: pkg, destinations }: PackageFormP
                         <SelectValue placeholder="Select destination" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="bg-white">
                       {destinations.map((destination) => (
                         <SelectItem key={destination.id} value={destination.id}>
                           {destination.name}
@@ -275,7 +291,7 @@ export default function PackageForm({ package: pkg, destinations }: PackageFormP
                   )}
                   <div className="flex items-center gap-4">
                     <FormControl>
-                      <Input type="text" placeholder="Image URL" {...field} className="hidden"/>
+                      <Input type="text" placeholder="Image URL" {...field} className="hidden" />
                     </FormControl>
                     <div className="relative">
                       <Input
@@ -287,7 +303,7 @@ export default function PackageForm({ package: pkg, destinations }: PackageFormP
                       <Button type="button" variant="outline">
                         {imageUploading ? (
                           <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin text-teal-600"/>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin text-teal-600" />
                             Uploading...
                           </>
                         ) : (

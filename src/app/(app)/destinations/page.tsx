@@ -1,6 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
-import { Star, ChevronRight } from "lucide-react"
+import { Star } from "lucide-react"
 import { getDestinations } from "@/lib/actions"
 
 export default async function DestinationsPage() {
@@ -98,7 +98,7 @@ export default async function DestinationsPage() {
               <div key={destination.id} className="overflow-hidden rounded-lg bg-white shadow">
                 <div className="relative h-64 overflow-hidden">
                   <Image
-                    src={destination.image || "/placeholder.svg"}
+                    src={destination.imageUrl || "/placeholder.svg"}
                     alt={destination.name}
                     width={600}
                     height={400}
@@ -228,7 +228,7 @@ export default async function DestinationsPage() {
               <div className="h-full overflow-hidden rounded-lg bg-white shadow">
                 <div className="relative h-96">
                   <Image
-                    src="/bg/travel-concept4.jpg?height=600&width=800"
+                    src="/bg/travel-concept.jpg?height=600&width=800"
                     alt="traveling"
                     fill
                     className="object-cover"
