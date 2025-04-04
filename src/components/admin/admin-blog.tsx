@@ -25,7 +25,7 @@ export default function AdminBlogsPage({ blogs }: AdminBlogsProps) {
     <div className="space-y-6">  
       <div className="flex items-center justify-between">  
         <h1 className="text-2xl font-bold">Blogs</h1>  
-        <Link href="/admin/dashboard/blogs/new">  
+        <Link href="/admin/blogs/new">  
           <Button>  
             <Plus className="mr-2 h-4 w-4" /> Add New Blog  
           </Button>  
@@ -64,7 +64,7 @@ export default function AdminBlogsPage({ blogs }: AdminBlogsProps) {
                   <TableCell>{new Date(blog.createdAt).toLocaleDateString()}</TableCell>  
                   <TableCell className="text-right">  
                     <div className="flex justify-end gap-2">  
-                      <Link href={`/admin/dashboard/blogs/${blog.id}`}>  
+                      <Link href={`/admin/blogs/${blog.id}`}>  
                         <Button variant="ghost" size="icon" className="cursor-pointer">  
                           <Edit className="h-4 w-4" />  
                           <span className="sr-only">Edit</span>  

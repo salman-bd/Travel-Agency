@@ -5,8 +5,15 @@ import { respondToContact } from "@/lib/actions"
 import db from "@/lib/db"
 import { formatDistanceToNow } from "date-fns"
 import { Mail, Calendar, CheckCircle } from "lucide-react"
+import { getCurrentUser } from "@/lib/auth"
+import { redirect } from "next/navigation"
 
 export default async function ContactsPage() {
+  const user = await getCurrentUser()
+  const userRole = user?.role
+  if (!user || userRole !== "ADMIN") {
+    redirect("/admin/signin")
+  }
   // Get contacts from database
   const contacts = await db.contact.findMany({
     orderBy: {

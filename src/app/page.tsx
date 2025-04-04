@@ -21,7 +21,7 @@ export default function Home() {
               Explore Now  
             </Link>  
           </div>  
-          <p className="absolute bottom-4">Popular Place : Bali, Istanbul, Rome, Paris.</p>  
+          <p className="absolute bottom-2">Popular Place : Bali, Istanbul, Rome, Paris.</p>  
         </div>  
       </section>
 

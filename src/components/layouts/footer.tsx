@@ -178,7 +178,7 @@ const Footer = () => {
               )}
               {!session?.user.role && (
                 <li>
-                  <Link href="/admin" className="flex items-center gap-2 hover:text-primary">
+                  <Link href="/admin/signin" className="flex items-center gap-2 hover:text-primary">
                     <Lock className="h-3 w-3" />
                     <span>Admin Sign In</span>
                   </Link>

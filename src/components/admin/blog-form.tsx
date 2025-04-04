@@ -66,7 +66,7 @@ export default function BlogForm({ blog, authorId }: BlogFormProps) {
           })
         }
       }
-      router.push("/admin/dashboard/blogs")
+      router.push("/admin/blogs")
       router.refresh()
     } catch (error: any) {
       setError(error.response?.data?.error || "Something went wrong. Please try again.")
@@ -263,7 +263,7 @@ export default function BlogForm({ blog, authorId }: BlogFormProps) {
             <Button type="submit" disabled={isLoading}>
               {isLoading ? "Saving..." : blog ? "Update Blog" : "Create Blog"}
             </Button>
-            <Button type="button" variant="outline" onClick={() => router.push("/admin/dashboard/blogs")}>
+            <Button type="button" variant="outline" onClick={() => router.push("/admin/blogs")}>
               Cancel
             </Button>
           </div>

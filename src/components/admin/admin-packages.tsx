@@ -28,7 +28,7 @@ export default function AdminPackages({ packages }: AdminPackagesProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Packages</h1>
-        <Link href="/admin/dashboard/packages/new">
+        <Link href="/admin/packages/new">
           <Button>
             <Plus className="mr-2 h-4 w-4" /> Add New Package
           </Button>
@@ -74,7 +74,7 @@ export default function AdminPackages({ packages }: AdminPackagesProps) {
                   <TableCell>${pkg.price.toFixed(2)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Link href={`/admin/dashboard/packages/${pkg.id}`}>
+                      <Link href={`/admin/packages/${pkg.id}`}>
                         <Button variant="ghost" size="icon">
                           <Edit className="h-4 w-4" />
                           <span className="sr-only">Edit</span>

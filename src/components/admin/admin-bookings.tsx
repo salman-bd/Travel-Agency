@@ -115,7 +115,7 @@ export default function AdminBookingsPage({ bookings }: AdminBookingProps) {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Link href={`/admin/dashboard/bookings/${booking.id}`}>
+                          <Link href={`/admin/bookings/${booking.id}`}>
                             <Button variant="ghost" size="icon" className="text-gray-500 hover:text-[#069aba]">
                               <Eye className="h-4 w-4" />
                               <span className="sr-only">View</span>

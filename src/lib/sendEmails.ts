@@ -8,7 +8,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 export async function sendVerificationEmail(email: string, name: string, verificationCode: string) {
   try {
     await resend.emails.send({
-      from: "Rebel Rover <verification@cscsylhet.com>",
+      from: "Traveller World <verification@cscsylhet.com>",
       to: [email],
       subject: "Verify your email address",
       react: VerificationEmail({
@@ -26,7 +26,7 @@ export async function sendVerificationEmail(email: string, name: string, verific
 export async function sendWelcomeEmail(email: string, name: string) {
   try {
     await resend.emails.send({
-      from: "Rebel Rover <welcome@cscsylhet.com>",
+      from: "Traveller World <welcome@cscsylhet.com>",
       to: [email],
       subject: "Welcome to Rebel Rover!",
       react: WelcomeEmail({
@@ -45,7 +45,7 @@ export async function sendPasswordResetEmail(email: string, name: string, resetT
     const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`
 
     await resend.emails.send({
-      from: "Rebel Rover <reset@cscsylhet.com>",
+      from: "Traveller World <reset@cscsylhet.com>",
       to: [email],
       subject: "Reset your password",
       react: PasswordResetEmail({

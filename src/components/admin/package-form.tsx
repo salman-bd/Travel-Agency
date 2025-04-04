@@ -125,7 +125,7 @@ export default function PackageForm({ package: pkg, destinations }: PackageFormP
           className: "bg-green-50 border-green-200 text-green-800",
         })
       }
-      router.push("/admin/dashboard/packages")
+      router.push("/admin/packages")
       router.refresh()
     } catch (error: any) {
       setError(error.message || "Something went wrong. Please try again.")

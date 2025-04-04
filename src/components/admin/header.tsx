@@ -38,27 +38,27 @@ const sidebarItems = [
   },
   {
     title: "Destinations",
-    href: "/admin/dashboard/destinations",
+    href: "/admin/destinations",
     icon: <Map className="h-5 w-5" />,
   },
   {
     title: "Packages",
-    href: "/admin/dashboard/packages",
+    href: "/admin/packages",
     icon: <Package className="h-5 w-5" />,
   },
   {
     title: "Bookings",
-    href: "/admin/dashboard/bookings",
+    href: "/admin/bookings",
     icon: <CalendarClock className="h-5 w-5" />,
   },
   {
     title: "Contacts",
-    href: "/admin/dashboard/contacts",
+    href: "/admin/contacts",
     icon: <MessageSquare className="h-5 w-5" />,
   },
   {
     title: "Blogs",
-    href: "/admin/dashboard/blogs",
+    href: "/admin/blogs",
     icon: <FileText className="h-5 w-5" />,
   },
 ]
@@ -125,7 +125,7 @@ export default function AdminHeader() {
           <div className="relative h-8 w-8 overflow-hidden rounded-full bg-[#069aba]">
             <Compass className="h-5 w-5 absolute inset-0 m-auto text-white" />
           </div>
-          <span className="text-[#069aba]">REBEL ROVER</span>
+          <span className="text-[#069aba]">TREVELLER WORLD</span>
         </Link>
       </div>
       <div className="ml-auto flex items-center gap-4">
@@ -136,7 +136,7 @@ export default function AdminHeader() {
               <User className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="bg-white">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Profile</DropdownMenuItem>

@@ -59,23 +59,25 @@ enum NotificationType {
 }
 
 model User {  
-  id                 String          @id @default(cuid())  
-  name               String?  
-  email              String          @unique  
-  password           String?  
-  role               Role            @default(USER)
-  isVerified         Boolean         @default(false)  
-  emailVerified      DateTime?  
-  image              String?  
-  verificationCode   String?  
-  verificationExpires DateTime?  
-  createdAt          DateTime        @default(now())  
-  updatedAt          DateTime        @updatedAt  
-  accounts           Account[]  
-  sessions           Session[]  
-  blogs              Blog[]
-  bookings           Booking[]
-  notifications      Notification[]
+  id                  String          @id @default(cuid())  
+  name                String?  
+  email               String          @unique  
+  password            String?  
+  role                Role            @default(USER)
+  isVerified          Boolean         @default(false)  
+  emailVerified       DateTime?  
+  image               String?  
+  verificationCode    String?  
+  verificationExpires DateTime?
+  resetToken          String?
+  resetTokenExpiry    DateTime?
+  createdAt           DateTime        @default(now())  
+  updatedAt           DateTime        @updatedAt  
+  accounts            Account[]  
+  sessions            Session[]  
+  blogs               Blog[]
+  bookings            Booking[]
+  notifications       Notification[]
 }  
 
 enum Role {

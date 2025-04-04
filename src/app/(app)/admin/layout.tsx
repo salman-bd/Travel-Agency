@@ -1,19 +1,14 @@
 import type React from "react"
-import { redirect } from "next/navigation"
-import { getCurrentUser } from "@/lib/auth"
 import AdminSidebar from "@/components/admin/sidebar"
 import AdminHeader from "@/components/admin/header"
+import { getCurrentUser } from "@/lib/auth"
+import { redirect } from "next/navigation"
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const user = await getCurrentUser()
-
-  if (!user || user.role !== "ADMIN") {
-    redirect("/admin")
-  }
 
   return (
     <div className="flex min-h-screen bg-gray-50">

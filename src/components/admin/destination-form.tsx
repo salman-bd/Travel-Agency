@@ -70,10 +70,12 @@ export default function DestinationForm({ destination }: DestinationFormProps) {
           })
         }
       }  
-      router.push("/admin/dashboard/destinations")
+      router.push("/admin/destinations")
       router.refresh()
     } catch (error) {
-      setError(error?.response?.data?.error || "Something went wrong. Please try again.")
+      toast.error("Error!", {
+        description:"An unexpexted error.",
+      })
       setIsLoading(false)
     }
   }
@@ -278,7 +280,7 @@ export default function DestinationForm({ destination }: DestinationFormProps) {
             render={({ field }) => (
               <FormItem className="flex flex-row items-center space-x-2 space-y-0">
                 <FormControl>
-                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  <Switch checked={field.value} onCheckedChange={field.onChange} className=""/>
                 </FormControl>
                 <FormLabel>Featured Destination</FormLabel>
               </FormItem>

@@ -110,7 +110,7 @@ export default function AdminDestinationsPage({ destinations }: AdminDestination
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Link href={`/admin/dashboard/destinations/${destination.id}`}>
+                          <Link href={`/admin/destinations/${destination.id}`}>
                             <Button variant="ghost" size="icon" className="text-gray-500 hover:text-[#069aba]">
                               <Edit className="h-4 w-4" />
                               <span className="sr-only">Edit</span>

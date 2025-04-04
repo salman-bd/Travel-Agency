@@ -32,7 +32,7 @@ export interface Destination {
 
 
 interface DestinationName {
-  name: string
+  name: string | ""
 }
 
 export interface Booking {  
@@ -81,10 +81,7 @@ export interface Package {
   exclusions: string[]
   createdAt: Date
   updatedAt: Date
-  destination?: {
-    id: string
-    name: string
-  }
+  destination: { name: string } | null 
 }
 
 export interface PackageWithItinerary extends Package {

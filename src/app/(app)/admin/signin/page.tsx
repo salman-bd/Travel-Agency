@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { signIn, useSession } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -9,60 +9,56 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Facebook, X, Eye, EyeOff } from "lucide-react"
-import { registerSchema, type RegisterFormValues } from "@/schemas/auth"
+import { loginSchema, type LoginFormValues } from "@/schemas/auth"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { registerUser } from "@/lib/actions"
 import Image from "next/image"
 
-export default function SignUpPage() {
+export default function AdminSignIn() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { status } = useSession()
+  const { data: session } = useSession()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  const redirect = searchParams.get("redirect") || "/"
+  const redirect = searchParams.get("redirect") || "/admin"
 
-  const form = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
-      name: "",
       email: "",
       password: "",
-      confirmPassword: "",
+      remember: false,
     },
   })
 
-  useEffect(() => {
-    if (status === "authenticated") {
-      router.push(redirect)
-    }
-  }, [status, router, redirect])
 
-  const onSubmit = async (data: RegisterFormValues) => {
+  const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true)
     setError(null)
 
     try {
-      const registrationData ={
-        name: data.name,
+      const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        role: 'ADMIN'
-      }
-      const result = await registerUser(registrationData)
-      if (!result.success) {
-        setError(result?.message || "Something went wrong. Please try again.")
-        router.push('/admin')
-      } else if (result.success) {
+        remember: data.remember,
+        redirect: false,
+      })
+      if (result?.error === "EMAIL_NOT_VERIFIED") {
         router.push(`/verify-email?email=${encodeURIComponent(data.email)}`)
+        return
       }
-    } catch (error: any) {
-      setError(error.response?.data?.error || "Something went wrong. Please try again.")
-    } finally {
+      if (result?.error) {
+        setError("Invalid email or password")
+        setIsLoading(false)
+        return
+      }
+      router.push(redirect)
+      router.refresh()
+    } catch (error) {
+      setError("Something went wrong. Please try again.")
       setIsLoading(false)
     }
   }
@@ -93,8 +89,8 @@ export default function SignUpPage() {
           </div>
 
           <div className="mb-6 space-y-2 text-center">
-            <h1 className="text-3xl font-bold text-gray-900">Create an Account</h1>
-            <p className="text-gray-600">Enter your information to create an account</p>
+            <h1 className="text-3xl font-bold text-gray-900">Sign In</h1>
+            <p className="text-gray-600">Enter your credentials to access your account</p>
           </div>
 
           {error && (
@@ -105,24 +101,6 @@ export default function SignUpPage() {
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-700">Full Name</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="John Doe" 
-                        className="border-gray-300 focus:border-[#1e3a8a] focus:ring-[#1e3a8a]" 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               <FormField
                 control={form.control}
                 name="email"
@@ -147,7 +125,12 @@ export default function SignUpPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-700">Password</FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel className="text-gray-700">Password</FormLabel>
+                      <Link href="/forgot-password" className="text-sm text-[#1e3a8a] hover:underline">
+                        Forgot password?
+                      </Link>
+                    </div>
                     <FormControl>
                       <div className="relative">
                         <Input 
@@ -175,31 +158,19 @@ export default function SignUpPage() {
 
               <FormField
                 control={form.control}
-                name="confirmPassword"
+                name="remember"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-700">Confirm Password</FormLabel>
+                  <FormItem className="flex flex-row items-start space-x-2 space-y-0">
                     <FormControl>
-                      <div className="relative">
-                        <Input 
-                          type={showConfirmPassword ? "text" : "password"} 
-                          className="border-gray-300 focus:border-[#1e3a8a] focus:ring-[#1e3a8a]" 
-                          {...field} 
-                        />
-                        <button
-                          type="button"
-                          className="absolute right-3 top-1/2 -translate-y-1/2"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        >
-                          {showConfirmPassword ? (
-                            <EyeOff className="h-4 w-4 text-gray-500" />
-                          ) : (
-                            <Eye className="h-4 w-4 text-gray-500" />
-                          )}
-                        </button>
-                      </div>
+                      <Checkbox 
+                        checked={field.value} 
+                        onCheckedChange={field.onChange}
+                        className="border-gray-300 data-[state=checked]:bg-[#1e3a8a] data-[state=checked]:border-[#1e3a8a]" 
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <div className="space-y-1 leading-none">
+                      <FormLabel className="text-gray-700">Remember me</FormLabel>
+                    </div>
                   </FormItem>
                 )}
               />
@@ -209,7 +180,7 @@ export default function SignUpPage() {
                 className="w-full bg-black hover:bg-black/90 text-white" 
                 disabled={isLoading}
               >
-                {isLoading ? "Creating account..." : "Sign Up"}
+                {isLoading ? "Signing in..." : "Sign In"}
               </Button>
             </form>
           </Form>
@@ -265,12 +236,12 @@ export default function SignUpPage() {
           </div>
 
           <div className="mt-6 text-center text-sm text-gray-600">
-            Already have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link 
-              href={`/signin?redirect=${encodeURIComponent(redirect)}`} 
+              href={`/admin/register?redirect=${encodeURIComponent(redirect)}`} 
               className="font-medium text-[#1e3a8a] hover:underline"
             >
-              Sign In
+              Register
             </Link>
           </div>
         </div>

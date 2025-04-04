@@ -10,32 +10,32 @@ import { Button } from "@/components/ui/button"
 const sidebarItems = [
   {
     title: "Dashboard",
-    href: "/admin/dashboard",
+    href: "/admin",
     icon: <LayoutDashboard className="h-5 w-5" />,
   },
   {
     title: "Destinations",
-    href: "/admin/dashboard/destinations",
+    href: "/admin/destinations",
     icon: <Map className="h-5 w-5" />,
   },
   {
     title: "Packages",
-    href: "/admin/dashboard/packages",
+    href: "/admin/packages",
     icon: <Package className="h-5 w-5" />,
   },
   {
     title: "Bookings",
-    href: "/admin/dashboard/bookings",
+    href: "/admin/bookings",
     icon: <CalendarClock className="h-5 w-5" />,
   },
   {
     title: "Contacts",
-    href: "/admin/dashboard/contacts",
+    href: "/admin/contacts",
     icon: <MessageSquare className="h-5 w-5" />,
   },
   {
     title: "Blogs",
-    href: "/admin/dashboard/blogs",
+    href: "/admin/blogs",
     icon: <FileText className="h-5 w-5" />,
   },
 ]
