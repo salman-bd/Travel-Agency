@@ -30,7 +30,7 @@ const Navbar = () => {
   }
 
   return (
-    <header className="sticky top-0 z-1000 w-full bg-white/80 backdrop-blur-sm ">
+    <header className="sticky top-0 z-1000 w-full bg-black opacity-80  text-white">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2">
           <div className="flex items-center">

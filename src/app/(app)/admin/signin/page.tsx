@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import Link from "next/link"
 import { signIn, useSession } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -15,7 +15,7 @@ import { loginSchema, type LoginFormValues } from "@/schemas/auth"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import Image from "next/image"
 
-export default function AdminSignIn() {
+function AdminSignInContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { data: session } = useSession()
@@ -249,4 +249,13 @@ export default function AdminSignIn() {
     </div>
   )
 }
+
+
+export default function SignInPage() {  
+  return (  
+    <Suspense fallback={<div>Loading...</div>}>  
+      <AdminSignInContent />  
+    </Suspense>  
+  )  
+} 
 

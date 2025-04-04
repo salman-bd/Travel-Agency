@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Hero Section */}
-      <section className="relative h-[600px] w-full bg-[url('/bg/suitcase-travel.jpg?height=600&width=1200')] bg-cover bg-center">
+      <section className="relative top-0 h-[600px] w-full bg-[url('/bg/suitcase-travel.jpg?height=600&width=1200')] bg-cover bg-center">
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="container relative z-10 mx-auto flex h-full flex-col items-start justify-center px-4 text-white pb-8">  
           <h1 className="mb-2 max-w-md text-4xl font-bold leading-tight md:text-5xl lg:text-6xl">  

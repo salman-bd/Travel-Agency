@@ -915,6 +915,38 @@ export async function respondToContact(id: string) {
   return { success: true }
 }
 
+// Add this function to fetch all contacts
+export async function getContacts() {
+  try {
+    const contacts = await db.contact.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    })
+
+    return contacts
+  } catch (error) {
+    console.error("Error fetching contacts:", error)
+    return []
+  }
+}
+
+// Add this function to fetch a single contact by ID
+export async function getContactById(id: string) {
+  try {
+    const contact = await db.contact.findUnique({
+      where: {
+        id,
+      },
+    })
+
+    return contact
+  } catch (error) {
+    console.error("Error fetching contact:", error)
+    return null
+  }
+}
+
 // Subscriber actions
 export async function addSubscriber(formData: FormData) {
   try {
