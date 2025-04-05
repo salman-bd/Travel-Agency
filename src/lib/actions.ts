@@ -996,6 +996,54 @@ export async function addSubscriber(formData: FormData) {
   }
 }
 
+// Add this function to handle user deletion requests
+export async function deleteUserAccount(userId: string) {
+  try {
+    const user = await getCurrentUser()
+    if (!user || user.id !== userId) {
+      return { success: false, message: "Unauthorized" }
+    }
+    // Delete user's data
+    await db.notification.deleteMany({
+      where: {
+        userId: user.id,
+      },
+    })
+    await db.booking.deleteMany({
+      where: {
+        userId: user.id,
+      },
+    })
+    await db.blog.deleteMany({
+      where: {
+        authorId: user.id,
+      },
+    })
+    // Delete user's account
+    await db.account.deleteMany({
+      where: {
+        userId: user.id,
+      },
+    })
+    // Delete user's sessions
+    await db.session.deleteMany({
+      where: {
+        userId: user.id,
+      },
+    })
+    // Finally, delete the user
+    await db.user.delete({
+      where: {
+        id: user.id,
+      },
+    })
+    return { success: true, message: "Account deleted successfully" }
+  } catch (error) {
+    console.error("Error deleting user account:", error)
+    return { success: false, message: "Failed to delete account" }
+  }
+}
+
 // Mock data for notifications (for development/testing)
 export async function getMockNotifications() {
   return [

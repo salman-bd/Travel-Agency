@@ -88,9 +88,9 @@ export const authOptions: NextAuthOptions = {
     },
 
     async jwt({ token, user, account, profile }) {
-      console.log('Account data in JWT :', account);
-      console.log('User data in JWT :', user);
-      console.log('User profile in JWT :', profile);
+      // console.log('Account data in JWT :', account);
+      // console.log('User data in JWT :', user);
+      // console.log('User profile in JWT :', profile);
       
       // Initial sign in
       if (account && user) {
@@ -101,7 +101,6 @@ export const authOptions: NextAuthOptions = {
             const dbUser = await prisma.user.findUnique({
               where: { email: user.email! },
             })
-
             if (dbUser) {
               // Update with additional fields
               const updatedUser = await prisma.user.update({
@@ -111,7 +110,7 @@ export const authOptions: NextAuthOptions = {
                   isVerified: true,
                 },
               })
-              console.log('Updated User: ', updatedUser);
+              // console.log('Updated User: ', updatedUser);
               
               // If this is a new user, send welcome email
               if (updatedUser.createdAt && new Date().getTime() - new Date(updatedUser.createdAt).getTime() < 60000) {

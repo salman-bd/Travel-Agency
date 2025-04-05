@@ -3,7 +3,7 @@ import AdminBlogsPage from "@/components/admin/admin-blog";
 
 export default async function AdminBlogs() {
   const blogs = await getBlogs()
-  console.log('Blogs: ', blogs);
+  // console.log('Blogs: ', blogs);
   
 
   return (
