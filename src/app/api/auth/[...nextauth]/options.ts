@@ -2,7 +2,7 @@ import type { NextAuthOptions } from "next-auth"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
-import GitHubProvider from "next-auth/providers/github"
+import TwitterProvider from "next-auth/providers/twitter"
 import FacebookProvider from "next-auth/providers/facebook"
 import prisma from "@/lib/db"
 import { compare } from "bcryptjs"
@@ -28,9 +28,9 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       allowDangerousEmailAccountLinking: true,
     }),
-    GitHubProvider({
-      clientId: process.env.GITHUB_ID!,
-      clientSecret: process.env.GITHUB_SECRET!,
+    TwitterProvider({
+      clientId: process.env.TWITTER_CLIENT_ID!,
+      clientSecret: process.env.TWITTER_CLIENT_SECRET!,
       allowDangerousEmailAccountLinking: true,
     }),
     FacebookProvider({
