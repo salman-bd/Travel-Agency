@@ -10,7 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Facebook, X, Eye, EyeOff } from 'lucide-react'
+import { Facebook, X, Eye, EyeOff, Twitter } from 'lucide-react'
 import { registerSchema, type RegisterFormValues } from "@/schemas/auth"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { registerUser } from "@/lib/actions"
@@ -224,7 +224,7 @@ export default function SignUpPage() {
             <span className="relative bg-white px-2 text-sm text-gray-500">Or continue with</span>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="flex flex-row items-center justify-center gap-4">
             <Button 
               variant="outline" 
               className="w-full border-gray-300 hover:bg-gray-50" 
@@ -250,20 +250,20 @@ export default function SignUpPage() {
               </svg>
               Google
             </Button>
-            <Button 
+            {/* <Button 
               variant="outline" 
               className="w-full border-gray-300 hover:bg-gray-50" 
               onClick={() => signIn("facebook", { callbackUrl: redirect })}
             >
               <Facebook className="mr-2 h-4 w-4 text-blue-600" />
               Facebook
-            </Button>
+            </Button> */}
             <Button 
               variant="outline" 
               className="w-full border-gray-300 hover:bg-gray-50" 
               onClick={() => signIn("twitter", { callbackUrl: redirect })}
             >
-              <X className="mr-2 h-4 w-4 text-black" />X
+              <Twitter className="mr-2 h-4 w-4 text-black" />Twitter
             </Button>
           </div>
 
