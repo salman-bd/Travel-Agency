@@ -17,6 +17,7 @@ import {
   LogOut,
   User,
   Compass,
+  MessageCircle,
 } from "lucide-react"
 import { signOut } from "next-auth/react"
 import { cn } from "@/lib/utils"
@@ -60,6 +61,11 @@ const sidebarItems = [
     title: "Blogs",
     href: "/admin/blogs",
     icon: <FileText className="h-5 w-5" />,
+  },
+  {
+    title: "Comments",
+    href: "/admin/comments",
+    icon: <MessageCircle className="h-5 w-5" />,
   },
 ]
 

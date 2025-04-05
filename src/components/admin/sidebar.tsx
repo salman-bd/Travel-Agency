@@ -3,7 +3,17 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, Map, Package, CalendarClock, MessageSquare, FileText, LogOut, Compass } from "lucide-react"
+import {
+  LayoutDashboard,
+  Map,
+  Package,
+  CalendarClock,
+  MessageSquare,
+  FileText,
+  LogOut,
+  Compass,
+  MessageCircle,
+} from "lucide-react"
 import { signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 
@@ -37,6 +47,11 @@ const sidebarItems = [
     title: "Blogs",
     href: "/admin/blogs",
     icon: <FileText className="h-5 w-5" />,
+  },
+  {
+    title: "Comments",
+    href: "/admin/comments",
+    icon: <MessageCircle className="h-5 w-5" />,
   },
 ]
 

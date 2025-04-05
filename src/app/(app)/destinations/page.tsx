@@ -142,7 +142,7 @@ export default async function DestinationsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2">
               <div className="h-64 md:h-auto">
                 <Image
-                  src="/bg/travel-concept2.png?height=500&width=600"
+                  src="/bg/bungalow-holiday.jpg?height=500&width=600"
                   alt="Featured destination"
                   width={600}
                   height={500}
@@ -255,78 +255,6 @@ export default async function DestinationsPage() {
           </div>
         </div>
       </section>
-
-      <section className="py-16 md:py-32">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-3xl">
-            <h2 className="mb-6 text-3xl font-bold">Leave a Reply</h2>
-            <p className="mb-8 text-gray-600">Your email address will not be published. Required fields are marked *</p>
-
-            <form className="space-y-6">
-              <div>
-                <label htmlFor="comment" className="mb-2 block text-lg">
-                  Comment
-                </label>
-                <textarea
-                  id="comment"
-                  rows={6}
-                  className="w-full rounded-md border border-gray-300 p-3 focus:border-gray-500 focus:outline-none"
-                ></textarea>
-              </div>
-
-              <div>
-                <label htmlFor="name" className="mb-2 block text-lg">
-                  Name *
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  required
-                  className="w-full rounded-md border border-gray-300 p-3 focus:border-gray-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="email" className="mb-2 block text-lg">
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  required
-                  className="w-full rounded-md border border-gray-300 p-3 focus:border-gray-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="website" className="mb-2 block text-lg">
-                  Website
-                </label>
-                <input
-                  type="url"
-                  id="website"
-                  className="w-full rounded-md border border-gray-300 p-3 focus:border-gray-500 focus:outline-none"
-                />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <input type="checkbox" id="save-info" className="h-5 w-5 rounded border-gray-300" />
-                <label htmlFor="save-info" className="text-gray-700">
-                  Save my name, email, and website in this browser for the next time I comment.
-                </label>
-              </div>
-
-              <button
-                type="submit"
-                className="rounded-full bg-black px-8 py-4 text-lg font-medium text-white hover:bg-black/90"
-              >
-                Post Comment
-              </button>
-            </form>
-          </div>
-        </div>
-      </section>
-
     </div>
   )
 }

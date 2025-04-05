@@ -106,7 +106,7 @@ export default function Home() {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="relative w-full bg-[url('/bg/travel.png?height=600&width=1200')] bg-cover bg-center py-16">
+      <section className="relative w-full bg-[url('/bg/travel.jpg?height=600&width=1200')] bg-cover bg-center py-16">
         <div className="absolute inset-0 "></div>
         <div className="container relative z-10 mx-auto px-4">
           <h2 className="mb-4 text-center text-4xl md:text-5xl font-bold text-white">Why choose Us?</h2>
@@ -187,16 +187,16 @@ export default function Home() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16">
             <div className="grayscale transition-all hover:grayscale-0">
-              <Image src="/katana.png?height=50&width=120" alt="Partner logo" width={120} height={50} />
+              <Image src="/logo/katana.png?height=50&width=120" alt="Partner logo" width={120} height={50} />
             </div>
             <div className="grayscale transition-all hover:grayscale-0">
-              <Image src="/travava.png?height=50&width=120" alt="Partner logo" width={120} height={50} />
+              <Image src="/logo/travava.png?height=50&width=120" alt="Partner logo" width={120} height={50} />
             </div>
             <div className="grayscale transition-all hover:grayscale-0">
-              <Image src="/bigui.png?height=50&width=120" alt="Partner logo" width={120} height={50} />
+              <Image src="/logo/bigui.png?height=50&width=120" alt="Partner logo" width={120} height={50} />
             </div>
             <div className="grayscale transition-all hover:grayscale-0">
-              <Image src="/booking.com.png?height=50&width=120" alt="Partner logo" width={120} height={50} />
+              <Image src="/logo/booking.com.png?height=50&width=120" alt="Partner logo" width={120} height={50} />
             </div>
           </div>
         </div>

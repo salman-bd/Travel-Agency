@@ -246,13 +246,13 @@ export default function ContactPage() {
       </section>
 
       {/* Map Section */}
-      <section className="py-8 md:py-32">
+      {/* <section className="py-8 md:py-32">
         <div className="container mx-auto px-4">
           <div className="h-[400px] w-full overflow-hidden rounded-lg bg-gray-200">
             <div className="h-full w-full bg-[url('/placeholder.svg?height=400&width=1200')] bg-cover bg-center"></div>
           </div>
         </div>
-      </section>
+      </section> */}
     </div>
   )
 }

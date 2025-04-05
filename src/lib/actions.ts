@@ -1089,3 +1089,205 @@ export async function getMockNotifications() {
   ]
 }
 
+
+// Add these types to the existing types in the file
+interface CommentData {
+  blogId: string
+  content: string
+  name: string
+  email: string
+  website?: string
+}
+
+// Add these functions to the actions.ts file
+
+export async function submitComment(data: CommentData) {
+  try {
+    const { blogId, content, name, email, website } = data
+
+    // Check if blog exists
+    const blog = await db.blog.findUnique({
+      where: { id: blogId },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+      },
+    })
+
+    if (!blog) {
+      return { success: false, message: "Blog not found" }
+    }
+
+    // Create comment
+    const comment = await db.comment.create({
+      data: {
+        content,
+        name,
+        email,
+        website: website || null,
+        blogId,
+        isApproved: false, // Comments require approval by default
+      },
+    })
+
+    // Create notification for admin users
+    const admins = await db.user.findMany({
+      where: {
+        role: "ADMIN",
+      },
+    })
+
+    for (const admin of admins) {
+      await createNotification({
+        userId: admin.id,
+        type: "BLOG",
+        message: `New comment on "${blog.title}" from ${name}`,
+        link: `/admin/comments`,
+      })
+    }
+
+    revalidatePath(`/blog/${blog.slug}`)
+    return { success: true, message: "Comment submitted successfully" }
+  } catch (error) {
+    console.error("Error submitting comment:", error)
+    return { success: false, message: "Failed to submit comment" }
+  }
+}
+
+export async function getCommentsByBlogId(blogId: string) {
+  try {
+    const comments = await db.comment.findMany({
+      where: {
+        blogId,
+        isApproved: true, // Only return approved comments for public view
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    })
+
+    return comments
+  } catch (error) {
+    console.error("Error fetching comments:", error)
+    return []
+  }
+}
+
+export async function approveComment(id: string) {
+  try {
+    const user = await getCurrentUser()
+
+    if (!user || user.role !== "ADMIN") {
+      return { success: false, message: "Unauthorized" }
+    }
+
+    const comment = await db.comment.update({
+      where: {
+        id,
+      },
+      data: {
+        isApproved: true,
+      },
+      include: {
+        blog: {
+          select: {
+            slug: true,
+          },
+        },
+      },
+    })
+
+    revalidatePath(`/blog/${comment.blog.slug}`)
+    revalidatePath("/admin/comments")
+    return { success: true, message: "Comment approved" }
+  } catch (error) {
+    console.error("Error approving comment:", error)
+    return { success: false, message: "Failed to approve comment" }
+  }
+}
+
+export async function deleteComment(id: string) {
+  try {
+    const user = await getCurrentUser()
+
+    if (!user || user.role !== "ADMIN") {
+      return { success: false, message: "Unauthorized" }
+    }
+
+    const comment = await db.comment.delete({
+      where: {
+        id,
+      },
+      include: {
+        blog: {
+          select: {
+            slug: true,
+          },
+        },
+      },
+    })
+
+    revalidatePath(`/blog/${comment.blog.slug}`)
+    revalidatePath("/admin/comments")
+    return { success: true, message: "Comment deleted" }
+  } catch (error) {
+    console.error("Error deleting comment:", error)
+    return { success: false, message: "Failed to delete comment" }
+  }
+}
+
+export async function getAllComments() {
+  try {
+    const user = await getCurrentUser()
+
+    if (!user || user.role !== "ADMIN") {
+      return []
+    }
+
+    const comments = await db.comment.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        blog: {
+          select: {
+            title: true,
+            slug: true,
+          },
+        },
+      },
+    })
+
+    return comments
+  } catch (error) {
+    console.error("Error fetching all comments:", error)
+    return []
+  }
+}
+
+// Add this function to get a blog by slug
+export async function getBlogBySlug(slug: string) {
+  try {
+    const blog = await db.blog.findUnique({
+      where: {
+        slug,
+        published: true,
+      },
+      include: {
+        author: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    })
+
+    return blog
+  } catch (error) {
+    console.error("Error fetching blog by slug:", error)
+    return null
+  }
+}
+
+

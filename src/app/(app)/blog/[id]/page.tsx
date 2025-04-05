@@ -1,15 +1,19 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ChevronRight, Facebook, Twitter, Linkedin, Calendar, User } from "lucide-react"
-import { getBlogs } from "@/lib/actions"
+import { getBlogs, getCommentsByBlogId } from "@/lib/actions"
 import { formatDate } from "@/lib/utils"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
+import CommentsList from "@/components/comments-list"
+import CommentForm from "@/components/comment-form"
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  const { slug } = await params
+export default async function BlogPostPage({ params }: { params: { id: string } }) {
+  const { id } = await params
+  const comments = await getCommentsByBlogId(id)
+
   const blogs = await getBlogs()
-  const blog = blogs.find((blog) => blog.slug === slug)
-
+  const blog = blogs.find((blog) => blog.id === id)
   if (!blog) {
     notFound()
   }
@@ -109,6 +113,22 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      </section>
+
+      {/* Comment Section */}
+      <section className="py-16 md:py-32">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-3xl">
+            <h2 className="mb-6 text-3xl font-bold">Leave a Reply</h2>
+            <p className="mb-8 text-gray-600">Your email address will not be published. Required fields are marked *</p>
+            <Suspense fallback={<div>Loading comments...</div>}>
+              <CommentsList comments={comments} />
+            </Suspense>
+            <div className="mt-12">
+              <CommentForm blogId={id} />
+            </div>
           </div>
         </div>
       </section>

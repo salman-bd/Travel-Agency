@@ -1,10 +1,16 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ChevronRight, Facebook, Twitter, Linkedin, Calendar, User } from "lucide-react"
-import { getBlogs } from "@/lib/actions"
+import { getBlogBySlug, getBlogs } from "@/lib/actions"
 import { formatDate } from "@/lib/utils"
 
-export default async function TravelStoriesPage() {
+interface BlogPageProps {
+  params: {
+    slug: string
+  }
+}
+
+export default async function TravelStoriesPage({ params }: BlogPageProps) {
   const blogs = await getBlogs()
 
   // Get the featured blog (first blog) and remaining blogs
@@ -72,7 +78,7 @@ export default async function TravelStoriesPage() {
                       </div>
                       <div className="relative h-[300px] overflow-hidden rounded-lg">
                         <Image
-                          src="/traveller2.jpg?height=400&width=600"
+                          src="/travelling3.jpg?height=400&width=600"
                           alt="Travelers with backpacks"
                           fill
                           className="object-cover"
@@ -90,9 +96,9 @@ export default async function TravelStoriesPage() {
                       >
                         {featuredBlog.category}
                       </Link>
-                      <Link href="/travel" className="text-sm hover:underline">
+                      {/* <Link href="/travel" className="text-sm hover:underline">
                         Travel
-                      </Link>
+                      </Link> */}
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -131,11 +137,11 @@ export default async function TravelStoriesPage() {
                         <span>{blog.category}</span>
                       </div>
                       <h3 className="mb-2 text-lg font-bold transition-colors group-hover:text-primary">
-                        <Link href={`/blog/${blog.slug}`}>{blog.title}</Link>
+                        <Link href={`/blog/${blog.id}`}>{blog.title}</Link>
                       </h3>
                       <p className="text-sm text-gray-600">{blog.excerpt}</p>
                       <Link
-                        href={`/blog/${blog.slug}`}
+                        href={`/blog/${blog.id}`}
                         className="mt-3 inline-flex items-center text-sm font-medium text-primary"
                       >
                         Read More
@@ -253,6 +259,81 @@ export default async function TravelStoriesPage() {
           </div>
         </div>
       </section>
+
+
+  
+
+      {/* <section className="py-16 md:py-32">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-3xl">
+            <h2 className="mb-6 text-3xl font-bold">Leave a Reply</h2>
+            <p className="mb-8 text-gray-600">Your email address will not be published. Required fields are marked *</p>
+
+            <form className="space-y-6">
+              <div>
+                <label htmlFor="comment" className="mb-2 block text-lg">
+                  Comment
+                </label>
+                <textarea
+                  id="comment"
+                  rows={6}
+                  className="w-full rounded-md border border-gray-300 p-3 focus:border-gray-500 focus:outline-none"
+                ></textarea>
+              </div>
+
+              <div>
+                <label htmlFor="name" className="mb-2 block text-lg">
+                  Name *
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  required
+                  className="w-full rounded-md border border-gray-300 p-3 focus:border-gray-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="email" className="mb-2 block text-lg">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  required
+                  className="w-full rounded-md border border-gray-300 p-3 focus:border-gray-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="website" className="mb-2 block text-lg">
+                  Website
+                </label>
+                <input
+                  type="url"
+                  id="website"
+                  className="w-full rounded-md border border-gray-300 p-3 focus:border-gray-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input type="checkbox" id="save-info" className="h-5 w-5 rounded border-gray-300" />
+                <label htmlFor="save-info" className="text-gray-700">
+                  Save my name, email, and website in this browser for the next time I comment.
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                className="rounded-full bg-black px-8 py-4 text-lg font-medium text-white hover:bg-black/90"
+              >
+                Post Comment
+              </button>
+            </form>
+          </div>
+        </div>
+      </section> */}
+
     </div>
   )
 }
